@@ -4,6 +4,7 @@ public class Scene {
     private int budget;
     private Role[] roles;
 
+    // the state of a scene card
     public enum SceneState {
         UNDRAWN,
         HIDDEN,
@@ -37,14 +38,17 @@ public class Scene {
     }
 //#endregion
 
+    // puts the card on the board
     public void putCardOnBoard(){
 
     }
 
+    // flips the card over
     public void flipCard() {
 
     }
 
+    // remove the card from the board
     public void removeCardFromBoard() {
 
     }

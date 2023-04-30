@@ -3,7 +3,6 @@ public class Player {
     private int rank;
     private int money;
     private int credits;
-    private Room currentLocation;
     private int playerNumber;
     private int rehearsalChipCount;
 
@@ -40,10 +39,7 @@ public class Player {
         return rank;
     }
 
-    public Room getCurrentLocation() {
-        return currentLocation;
-    }
-
+    // returns player's number. Every player has unique player number
     public int getPlayerNumber() {
         return playerNumber;
     }

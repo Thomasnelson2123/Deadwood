@@ -4,6 +4,7 @@ public class Room {
     private Role[] roles;
     private Scene sceneCard;
     private String roomName;
+    private String[] adjacentRoomNames;
     public Room(int maxShots, Role[] roles, String roomName) {
         this.maxShots = maxShots;
         this.roles = roles;
@@ -32,5 +33,10 @@ public class Room {
 
     public void setSceneCard(Scene sceneCard) {
         this.sceneCard = sceneCard;
+    }
+
+    // each room keeps track of the rooms adjacent to it
+    public void setAdjacentRoomNames(String[] adjacentRoomNames) {
+        this.adjacentRoomNames = adjacentRoomNames;
     }
 }
