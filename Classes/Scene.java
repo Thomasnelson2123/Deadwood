@@ -3,6 +3,7 @@ public class Scene {
     private String caption;
     private int budget;
     private Role[] roles;
+    private int sceneNumber;
 
     // the state of a scene card
     public enum SceneState {
@@ -13,12 +14,13 @@ public class Scene {
     }
     
     private SceneState state;
-    public Scene(String name, String caption, int budget, Role[] roles) {
+    public Scene(String name, int sceneNumber, String caption, int budget, Role[] roles) {
         this.state = SceneState.UNDRAWN;
         this.name = name;
         this.caption = caption;
         this.budget = budget;
         this.roles = roles;
+        this.sceneNumber = sceneNumber;
     }
 //#region Getters
     public int getBudget() {
@@ -31,6 +33,10 @@ public class Scene {
 
     public String getName() {
         return name;
+    }
+
+    public int getSceneNumber() {
+        return sceneNumber;
     }
 
     public Role[] getRoles() {
