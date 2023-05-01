@@ -1,16 +1,17 @@
 public class Room {
-    private int maxShots;
-    private int currentShots;
     private Role[] roles;
     private Scene sceneCard;
     private String roomName;
     private String[] adjacentRoomNames;
-    public Room(int maxShots, Role[] roles, String roomName) {
-        this.maxShots = maxShots;
+    private int[] dims;
+    private ShotCounter[] shots;
+    public Room(Role[] roles, String roomName, String[] adjacentRoomNames, int[] dims, ShotCounter[] shots) {
         this.roles = roles;
         this.roomName = roomName;
-        this.currentShots = this.maxShots;
         this.sceneCard = null;
+        this.adjacentRoomNames = adjacentRoomNames;
+        this.dims = dims;
+        this.shots = shots;
     }
 
     //#region getters
@@ -22,10 +23,6 @@ public class Room {
         return roles;
     }
 
-    public int getCurrentShots() {
-        return currentShots;
-    }
-
     public Scene getSceneCard() {
         return sceneCard;
     }
@@ -35,8 +32,15 @@ public class Room {
         this.sceneCard = sceneCard;
     }
 
-    // each room keeps track of the rooms adjacent to it
-    public void setAdjacentRoomNames(String[] adjacentRoomNames) {
-        this.adjacentRoomNames = adjacentRoomNames;
+    // for debug
+    public void printRoomInfo() {
+        System.out.println(roomName);
+        for (ShotCounter shot: shots) {
+            System.out.println(shot.getId());
+        }
+        // System.out.print("adjacent: ");
+        // for (String str: adjacentRoomNames) {
+        //     System.out.print(str + ", ");
+        // }
     }
 }

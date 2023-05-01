@@ -11,10 +11,8 @@ public class Deadwood{
         GameManager manager;
         ParseXML parser = new ParseXML();
 
-        // Scene[] scenes = parser.readCardData(parser.getDocFromFile("../XML_Files/cards.xml"));
-        // for (Scene scene: scenes) {
-        //     System.out.println(scene.getName());
-        // }
+        Room[] rooms = parser.readBoardData(parser.getDocFromFile("../XML_Files/board.xml"));
+        Scene[] scenes = parser.readCardData(parser.getDocFromFile("../XML_Files/cards.xml"));
     }
 
     // initializes game manager, board, players, etc
