@@ -1,37 +1,54 @@
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.nio.file.Paths;
 
 public class Deadwood{
-    public static void main(String[] args) throws ParserConfigurationException {
+
+    static Room[] rooms;
+    static Scene[] scenes;
+    public static void main(String[] args) throws ParserConfigurationException, Exception {
+        
+
         Controller controller;
         Bank bank;
         Board board;
         GameManager manager;
-        ParseXML parser = new ParseXML();
 
-        /*
-        File f = new File("../XML_Files/board.xml");
+        // parses the XML files and initializes the rooms and scenes
+        parseXML();
 
 
-        if(!f.exists()){
-            f = new File("XML_Files/board.xml");
-        }
-
-        Room[] rooms = parser.readBoardData(parser.getDocFromFile("../XML_Files/board.xml"));
-        Scene[] scenes = parser.readCardData(parser.getDocFromFile("../XML_Files/cards.xml"));
-        */
+        
     }
 
     // initializes game manager, board, players, etc
-    public void startGame(){
+    private static void startGame(){
 
     }
 
     // resets entire game state (days, players, etc)
-    public void resetGame(){
+    private static void resetGame(){
 
+    }
+
+    private static void parseXML() throws Exception{
+        ParseXML parser = new ParseXML();
+        String cwd = System.getProperty("user.dir");
+        String[] path = cwd.split("\\\\");
+        String prefix = "";
+        // because for somer reason when Deadwood.java is run, it doesn't recognize
+        // it is in the classes directory... but sometimes it does?
+        if (path[path.length - 1].equals("Classes")) {
+            prefix = "../XML_Files/";
+        }
+        else {
+            if (path[path.length - 1].equals("Deadwood")) {
+                throw new Exception("In an unknown directory");
+            }
+            prefix = "XML_Files/";
+        }
+
+        rooms = parser.readBoardData(parser.getDocFromFile(prefix + "board.xml"));
+        scenes = parser.readCardData(parser.getDocFromFile(prefix + "cards.xml"));
     }
     
 }

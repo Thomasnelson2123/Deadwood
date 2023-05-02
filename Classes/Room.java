@@ -26,11 +26,16 @@ public class Room {
     public Scene getSceneCard() {
         return sceneCard;
     }
-    //#endregion
 
     public void setSceneCard(Scene sceneCard) {
         this.sceneCard = sceneCard;
     }
+
+    public String[] getAdjacentRoomNames() {
+        return adjacentRoomNames;
+    }
+
+     //#endregion
 
     // for debug
     public void printRoomInfo() {
