@@ -19,8 +19,47 @@ public class Bank {
     }
 
     // upgrades current player rank and subtracts cost
-    public void upgradePlayer(Player player, boolean usingMoney){
-        return;
+    public boolean upgradePlayer(Player player, int targetRank, boolean usingMoney){
+
+        boolean isSuccess = true;
+
+        //get cost
+        int cost = 0;
+        try{
+            if(usingMoney){
+                cost = getUpgradeCostMoney(targetRank);
+            }else{
+                cost = getUpgradeCostCredits(targetRank);
+            }
+        }catch(Exception ex){
+            
+        }
+        
+        //determine whether or not player is able to upgrade based on cost,
+        //then apply upgrade and return
+        if(usingMoney){
+            int currentMoney = player.getMoney();
+            if(currentMoney < cost){
+                //failure
+                isSuccess = false;
+            }else{
+                //success
+                player.setMoney(currentMoney-cost);
+                player.setRank(targetRank);
+            }
+        }else{
+            int currentCredits = player.getCredits();
+            if(currentCredits < cost){
+                //failure
+                isSuccess = false;
+            }else{
+                //success
+                player.setCredits(currentCredits-cost);
+                player.setRank(targetRank);
+            }
+        }
+
+        return isSuccess;
     }
 
     // pays players for completing a scene based on their roles + scene budget

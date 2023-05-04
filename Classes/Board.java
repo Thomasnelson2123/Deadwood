@@ -1,3 +1,4 @@
+import java.beans.DesignMode;
 import java.util.HashMap;
 
 public class Board {
@@ -17,12 +18,26 @@ public class Board {
 
     // returns the object of a room based on its name
     public Room nameToObject(String name) {
-        return null;
+        //uses hash map to get room object from name
+        return rooms.get(name);
     }
 
     // determines if start/destination room are adjacent
     public boolean isValidMove(String start, String destination) {
-        return true;
+        
+        boolean isValid = false;
+        
+        //get list of adjacent rooms
+        String[] adjacentRooms = rooms.get(start).getAdjacentRoomNames();
+
+        for(String x : adjacentRooms){
+            if(x.equals(destination)){
+                isValid = true;
+                break;
+            }
+        }
+        
+        return isValid;
     }
 
     // resets board
@@ -31,13 +46,24 @@ public class Board {
     }
 
     // moves player from one room to an adjacent room
-    public void movePlayer(int playerNum, Room destination) {
+    public boolean movePlayer(int playerNum, String destination) {
+        
+        boolean isSuccess = false;
 
+        boolean isValid = isValidMove(playerLocations[playerNum],destination);
+
+        if(isValid){
+            playerLocations[playerNum] = destination;
+            isSuccess = true;
+        }
+
+        return isSuccess;
+        
     }
 
     // returns current player room based on id
     public String getPlayerRoom(int playerNum) {
-        return null;
+        return playerLocations[playerNum];
     }
 
 }

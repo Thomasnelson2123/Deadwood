@@ -15,11 +15,11 @@ public class Player {
         //this.currentLocation = Trailer
     }
 
-    public void addChip() {
+    public void addRehearsalChip() {
         this.rehearsalChipCount++;
     }
 
-    public void resetChipCount() {
+    public void resetRehearsalChipCount() {
         this.rehearsalChipCount = 0;
     }
 
@@ -42,6 +42,18 @@ public class Player {
     // returns player's number. Every player has unique player number
     public int getPlayerNumber() {
         return playerNumber;
+    }
+
+    public void setMoney(int newMoney){
+        this.money = newMoney;
+    }
+
+    public void setCredits(int newCredits){
+        this.credits = newCredits;
+    }
+
+    public void setRank(int newRank){
+        this.rank = newRank;
     }
 
 }

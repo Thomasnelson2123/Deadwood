@@ -37,6 +37,7 @@ public class Role {
     public boolean getOccupied() {
         return isOccupied;
     }
+    
     public void setOccupied(boolean isOccupied) {
         this.isOccupied = isOccupied;
     }
