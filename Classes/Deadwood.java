@@ -7,11 +7,33 @@ public class Deadwood{
     static Scene[] scenes;
     public static void main(String[] args) throws ParserConfigurationException, Exception {
         
+        // get number of players
+        if (args.length!= 1) {
+            System.out.println("Program requires one argument (number of players)");
+            return;
+        }
+        int numPlayers = 0;
+        try {
+            numPlayers = Integer.parseInt(args[0]);
+            if (numPlayers < 2 || numPlayers > 8) {
+                System.out.println("Game only supports 2-8 players");
+                return;
+            }
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Argument must be an integer between 2 and 8");
+            return;
+        }
+
+
 
         Controller controller;
         Bank bank;
         Board board;
         GameManager manager;
+        Player[] players = new Player[numPlayers];
+
+
 
         // parses the XML files and initializes the rooms and scenes
         parseXML();
@@ -41,7 +63,7 @@ public class Deadwood{
             prefix = "../XML_Files/";
         }
         else {
-            if (path[path.length - 1].equals("Deadwood")) {
+            if (!path[path.length - 1].equals("Deadwood")) {
                 throw new Exception("In an unknown directory");
             }
             prefix = "XML_Files/";

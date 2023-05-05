@@ -1,10 +1,17 @@
 public class GUI {
+    Controller controller;
     public GUI(Controller controller) {
-
+        this.controller = controller;
     }
 
     // lets player type the command they want to execute
     public void getUserInput() {
+        
+    }
+
+    // call this function when we are expecting a numerical answer
+    // reprompt user for answer if non-numeric
+    public void parseNumericalInput() {
 
     }
 
