@@ -1,10 +1,10 @@
 import java.util.Scanner;
 
 public class GUI {
-    Controller controller;
     Scanner scanner;
-    public GUI(Controller controller) {
-        this.controller = controller;
+    GameManager manager;
+    public GUI(GameManager manager) {
+        this.manager = manager;
         scanner = new Scanner(System.in);
     }
 
