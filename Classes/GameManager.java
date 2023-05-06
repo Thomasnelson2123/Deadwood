@@ -3,6 +3,7 @@ public class GameManager {
     private Board board;
     private Player[] players;
     private Bank bank;
+    private GUI gui;
 
     private Player currentPlayer;
     private int day;
@@ -11,6 +12,7 @@ public class GameManager {
         this.bank = bank;
         this.board = board;
         this.players = players;
+        this.gui = new GUI(this);
 
         this.currentPlayer = null;
         this.day = 0;
@@ -20,10 +22,40 @@ public class GameManager {
     // the main loop for taking turns between players in the game
     public void mainLoop(){
         while(true) {
-            // get input from user
-            // Controller.getUserInput --> GUI.getUserInput
-            // *hangs*
-            // 
+            // HEY CARTER READ THIS
+
+            // loop goes as such
+            // args = gui.parseUserInput()
+            // parseAction(args)
+            
+        }
+    }
+
+    public void parseAction(String[] args){
+        //boolean actionSuccess = something;
+        
+        switch(args[0]){
+            case "act":
+                act(currentPlayer);
+                break;
+            case "rehearse":
+                rehearse(currentPlayer);
+                break;
+            case "work":
+                takeRole(currentPlayer);
+                break;
+            case "move":
+                move(currentPlayer,args[1]);
+                break;
+            case "upgrade":
+                upgradeRank(currentPlayer);
+                break;
+            case "end": //end turn
+                endTurn();
+                break;
+            case "terminate":
+                endGame();
+                break;
         }
     }
     
@@ -53,7 +85,13 @@ public class GameManager {
     }
 
     // resolve the "move" action a player may take
-    public void move(Player player) {
+    public void move(Player player, String destinationRoom) {
+        int playerNum = player.getPlayerNumber();
+        boolean success = board.movePlayer(playerNum, destinationRoom);
+        if (!success) {
+
+        }
+        
 
     }
 
@@ -71,7 +109,20 @@ public class GameManager {
         return currentPlayer;
     }
 
+    public int getCurrentPlayerNum(){
+        return getCurrentPlayer().getPlayerNumber();
+    }
+
     public String getPlayerLocation(int playerNum){
         return board.getPlayerRoom(playerNum);
     }
+
+    public void endTurn(){
+
+    }
+
+    public void endGame(){
+        System.exit(1);
+    }
+
 }

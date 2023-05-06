@@ -1,14 +1,21 @@
-import java.beans.DesignMode;
 import java.util.HashMap;
 
 public class Board {
     private HashMap<String, Room> rooms; // name of each room (string) -> Room object
     private String[] playerLocations;
     private Player[] players;
+    private HashMap<String, Scene> scenes;
 
-    public Board(int numPlayers) {
+    public Board(int numPlayers, Room[] roomData, Scene[] sceneData) {
         rooms = new HashMap<String, Room>();
+        scenes = new HashMap<String, Scene>();
         playerLocations = new String[numPlayers];
+        for (Room room : roomData) {
+            rooms.put(room.getRoomName(), room);
+        }
+        for (Scene scene: sceneData) {
+            scenes.put(scene.getName(), scene);
+        }
     }
 
     // populates the adjacentRooms[] array for each room
@@ -47,17 +54,13 @@ public class Board {
 
     // moves player from one room to an adjacent room
     public boolean movePlayer(int playerNum, String destination) {
-        
-        boolean isSuccess = false;
-
+    
         boolean isValid = isValidMove(playerLocations[playerNum],destination);
-
         if(isValid){
             playerLocations[playerNum] = destination;
-            isSuccess = true;
         }
 
-        return isSuccess;
+        return isValid;
         
     }
 

@@ -25,28 +25,17 @@ public class Deadwood{
             return;
         }
 
-        Bank bank;
-        Board board;
-        GameManager manager;
-        Player[] players = new Player[numPlayers];
-
         // parses the XML files and initializes the rooms and scenes
         parseXML();
 
+        Bank bank = new Bank();
+        Board board = new Board(numPlayers, rooms, scenes);
+        Player[] players = new Player[numPlayers];
+        GameManager manager = new GameManager(board, players, bank);
 
-
-
-        
-    }
-
-    // initializes game manager, board, players, etc
-    private static void startGame(){
-
-    }
-
-    // resets entire game state (days, players, etc)
-    private static void resetGame(){
-
+        // main gameplay loop
+        manager.mainLoop();
+  
     }
 
     private static void parseXML() throws Exception{
@@ -66,6 +55,7 @@ public class Deadwood{
             prefix = "XML_Files/";
         }
 
+        System.out.println("hi");
         rooms = parser.readBoardData(parser.getDocFromFile(prefix + "board.xml"));
         scenes = parser.readCardData(parser.getDocFromFile(prefix + "cards.xml"));
     }
