@@ -33,10 +33,10 @@ public class Deadwood{
         GameManager manager;
         Player[] players = new Player[numPlayers];
 
-
-
         // parses the XML files and initializes the rooms and scenes
         parseXML();
+
+        
 
 
         

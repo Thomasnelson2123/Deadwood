@@ -21,7 +21,12 @@ public class GameManager {
 
     // the main loop for taking turns between players in the game
     public void mainLoop(){
-
+        while(true) {
+            // get input from user
+            // Controller.getUserInput --> GUI.getUserInput
+            // *hangs*
+            // 
+        }
     }
     
     // gives one player the option to take actions
@@ -62,5 +67,13 @@ public class GameManager {
     // pay players for completing a scene
     public void payPlayers(){
 
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public String getPlayerLocation(int playerNum){
+        return board.getPlayerRoom(playerNum);
     }
 }

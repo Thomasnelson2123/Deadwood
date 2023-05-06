@@ -1,23 +1,21 @@
+import java.util.Scanner;
+
 public class GUI {
     Controller controller;
+    Scanner scanner;
     public GUI(Controller controller) {
         this.controller = controller;
+        scanner = new Scanner(System.in);
     }
 
     // lets player type the command they want to execute
-    public void getUserInput() {
-        
-    }
-
-    // call this function when we are expecting a numerical answer
-    // reprompt user for answer if non-numeric
-    public void parseNumericalInput() {
-
+    public String getUserInput() {
+        return scanner.nextLine();
     }
 
     // takes user input and decides what function to call
     public void parseUserInput(String input) {
-
+        
     }
 
     // displays to user the active player
