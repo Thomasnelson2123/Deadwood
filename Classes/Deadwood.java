@@ -25,9 +25,6 @@ public class Deadwood{
             return;
         }
 
-
-
-        Controller controller;
         Bank bank;
         Board board;
         GameManager manager;
@@ -36,7 +33,7 @@ public class Deadwood{
         // parses the XML files and initializes the rooms and scenes
         parseXML();
 
-        
+
 
 
         
