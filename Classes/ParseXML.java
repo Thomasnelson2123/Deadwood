@@ -42,17 +42,7 @@ public class ParseXML {
             for (int j = 0; j < children.getLength(); j++) {
                 Node sub = children.item(j);
                 // neighbors of set
-                if("neighbors".equals(sub.getNodeName())){
-                    NodeList neighborsList = sub.getChildNodes();
-                    // iterate over all neighbors of a set
-                    for (int k = 0; k < neighborsList.getLength(); k++) {
-                        Node n = neighborsList.item(k);
-                        if ("neighbor".equals(n.getNodeName())) {
-                            // found a neighbor, add it to list 
-                            neighbors.add(n.getAttributes().getNamedItem("name").getNodeValue());
-                        }  
-                    }
-                }
+                parseNeighbors(sub, neighbors);
 
                 // area of room
                 if ("area".equals(sub.getNodeName())) {
@@ -61,25 +51,7 @@ public class ParseXML {
 
                 // shotcounters of room
                 if("takes".equals(sub.getNodeName())) {
-                    NodeList takesList = sub.getChildNodes();
-                    // iterate over all takes of a set
-                    for (int k = 0; k < takesList.getLength(); k++) {
-                        int takeNum = 0;
-                        int[] takeDims = new int[4];
-                        Node n = takesList.item(k);
-                        if ("take".equals(n.getNodeName())) {
-                            takeNum = Integer.parseInt(n.getAttributes().getNamedItem("number").getNodeValue());
-                            NodeList areas = n.getChildNodes();
-                            for (int l = 0; l < areas.getLength(); l++) {
-                                Node a = areas.item(l);
-                                if("area".equals(a.getNodeName())) {
-                                    takeDims = getArea(a);
-                                }
-                            }
-                            ShotCounter take = new ShotCounter(takeNum, takeDims, false);
-                            shots.add(take); 
-                        } 
-                    }
+                    parseTakes(sub, shots);
                 }
 
                 // get offcard roles
@@ -100,10 +72,67 @@ public class ParseXML {
             neighbors.toArray(new String[neighbors.size()]), roomDims, 
             shots.toArray(new ShotCounter[shots.size()]));
             rooms.add(room);
-
-
         }
+        parseOfficeOrTrailer(root, "trailer", rooms);
+        parseOfficeOrTrailer(root, "office", rooms);
         return rooms.toArray(new Room[rooms.size()]);
+    }
+
+    public void parseNeighbors(Node sub, ArrayList<String> neighbors) {
+        NodeList neighborsList = sub.getChildNodes();
+        // iterate over all neighbors of a set
+        for (int k = 0; k < neighborsList.getLength(); k++) {
+            Node n = neighborsList.item(k);
+            if ("neighbor".equals(n.getNodeName())) {
+                // found a neighbor, add it to list 
+                neighbors.add(n.getAttributes().getNamedItem("name").getNodeValue());
+            }  
+        }
+
+    }
+
+    public void parseTakes(Node sub, ArrayList<ShotCounter> shots) {
+        NodeList takesList = sub.getChildNodes();
+        // iterate over all takes of a set
+        for (int k = 0; k < takesList.getLength(); k++) {
+            int takeNum = 0;
+            int[] takeDims = new int[4];
+            Node n = takesList.item(k);
+            if ("take".equals(n.getNodeName())) {
+                takeNum = Integer.parseInt(n.getAttributes().getNamedItem("number").getNodeValue());
+                NodeList areas = n.getChildNodes();
+                for (int l = 0; l < areas.getLength(); l++) {
+                    Node a = areas.item(l);
+                    if("area".equals(a.getNodeName())) {
+                        takeDims = getArea(a);
+                    }
+                }
+                ShotCounter take = new ShotCounter(takeNum, takeDims, false);
+                shots.add(take); 
+            } 
+        }
+    }
+
+    private void parseOfficeOrTrailer(Element root, String whichRoom, ArrayList<Room> rooms) {
+        Node roomNode = root.getElementsByTagName(whichRoom).item(0);
+        NodeList roomNodeChildren = roomNode.getChildNodes();
+        ArrayList<String> neighbors = new ArrayList<String>();
+        int[] roomDims = new int[4];
+        for (int j = 0; j < roomNodeChildren.getLength(); j++) {
+            Node sub = roomNodeChildren.item(j);
+            // neighbors of set
+            parseNeighbors(sub, neighbors);
+
+            // area of room
+            if ("area".equals(sub.getNodeName())) {
+                roomDims = getArea(sub);
+            }
+        }
+        Room room = new Room(null, whichRoom.substring(0, 1).toUpperCase() + whichRoom.substring(1), 
+        neighbors.toArray(new String[neighbors.size()]), roomDims, 
+        null);
+        rooms.add(room);
+        
     }
 
     // reads all the card data for the game and returns an array of Scene objects

@@ -1,12 +1,18 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Board {
     private HashMap<String, Room> rooms; // name of each room (string) -> Room object
     private String[] playerLocations;
     private Player[] players;
     private HashMap<String, Scene> scenes;
+    private ArrayList<Scene> unusedScenes;
+    private Random rand;
+    
 
-    public Board(int numPlayers, Room[] roomData, Scene[] sceneData) {
+    public Board(int numPlayers, Room[] roomData, Scene[] sceneData, Random rand) {
+        this.unusedScenes = new ArrayList<Scene>();
         rooms = new HashMap<String, Room>();
         scenes = new HashMap<String, Scene>();
         playerLocations = new String[numPlayers];
@@ -15,13 +21,12 @@ public class Board {
         }
         for (Scene scene: sceneData) {
             scenes.put(scene.getName(), scene);
+            this.unusedScenes.add(scene);
         }
-    }
-
-    // populates the adjacentRooms[] array for each room
-    public void assignRoomAdjacencies() {
+        this.rand = rand;
 
     }
+
 
     // returns the object of a room based on its name
     public Room nameToObject(String name) {
@@ -48,8 +53,21 @@ public class Board {
     }
 
     // resets board
-    public void resetBoard() {
+    public void resetBoard() throws Exception {
+        // move players to trailer
+        for(int i = 0; i < playerLocations.length; i++){
+            playerLocations[i] = "Trailer";
+        }
 
+        // change scene card in every room
+        for (Room r : rooms.values()) {
+            if (unusedScenes.size() == 0) {
+                throw new Exception("No more scene cards left");
+            }
+            int roll = rand.nextInt(0, unusedScenes.size());
+            r.setSceneCard(unusedScenes.get(roll));
+            unusedScenes.remove(roll);
+        }
     }
 
     // moves player from one room to an adjacent room
@@ -66,7 +84,7 @@ public class Board {
 
     // returns current player room based on id
     public String getPlayerRoom(int playerNum) {
-        return playerLocations[playerNum];
+        return playerLocations[playerNum - 1];
     }
 
 }

@@ -70,36 +70,46 @@ public class GUI {
     }
 
     public String[] act() {
-        return null;
+        return new String[] {"act"};
     }
 
     public String[] rehearse() {
-        return null;
+        return new String[] {"rehearse"};
     }
 
     public String[] move() {
         System.out.println("Where would you like to move to?");
-        String destination = scanner.nextLine();
-        return null;    
+        String destination = scanner.nextLine().toLowerCase();
+
+        return new String[] {"move", destination};   
 
     }
 
     public String[] takeRole() {
-        return null;
+        System.out.println("Which role would you like to take?");
+        String targetRole = scanner.nextLine().toLowerCase();
+
+        return new String[] {"work", targetRole};
     }
 
     // ends the game early
     public String[] endGame() {
-        return null;
+        return new String[] {"terminate"};
     }
 
     // ends the players turn
     public String[] endTurn() {
-        return null;
+        return new String[] {"end"};
     }
 
     public String[] upgrade() {
-        return null;
+        System.out.println("Which rank would you like to upgrade to?");
+        String targetRank = scanner.nextLine().toLowerCase();
+
+        System.out.println("Would you like to use [money] or [credits]?");
+        String paymentType = scanner.nextLine().toLowerCase();
+        
+        return new String[] {"upgrade", targetRank, paymentType};
     }
 
 

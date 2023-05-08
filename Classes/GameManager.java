@@ -8,26 +8,48 @@ public class GameManager {
     private Player currentPlayer;
     private int day;
     private int completedScenes;
+    private int maxDays = 4;
     public GameManager(Board board, Player[] players, Bank bank) {
         this.bank = bank;
         this.board = board;
         this.players = players;
         this.gui = new GUI(this);
-
-        this.currentPlayer = null;
         this.day = 0;
         this.completedScenes = 0;
+
+        if (players.length < 4) {
+            maxDays = 3;
+        }
+
+        for (int i = 0; i < players.length; i++) {
+            players[i] = new Player(i + 1);
+            if (players.length == 5) {
+                players[i].setCredits(2);           
+            }
+            if (players.length == 6) {
+                players[i].setCredits(4);
+            }
+            if (players.length > 6) {
+                players[i].setRank(2);
+            }   
+
+        }
+        currentPlayer = players[0];
+
+
+
     }
 
     // the main loop for taking turns between players in the game
     public void mainLoop(){
         while(true) {
-            // HEY CARTER READ THIS
 
-            // loop goes as such
-            // args = gui.parseUserInput()
-            // parseAction(args)
-            
+            String[] args = gui.parseUserInput();
+            // if null: user entered gui only command, manager needs not do anything
+            if (args != null) {
+                parseAction(args);
+            }
+
         }
     }
 
@@ -106,7 +128,7 @@ public class GameManager {
     }
 
     public Player getCurrentPlayer() {
-        return currentPlayer;
+        return this.currentPlayer;
     }
 
     public int getCurrentPlayerNum(){
@@ -118,7 +140,8 @@ public class GameManager {
     }
 
     public void endTurn(){
-
+        int currentPlayerNum = currentPlayer.getPlayerNumber();
+        this.currentPlayer = this.players[currentPlayerNum % this.players.length];
     }
 
     public void endGame(){
