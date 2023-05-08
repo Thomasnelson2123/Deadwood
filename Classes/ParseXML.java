@@ -85,7 +85,9 @@ public class ParseXML {
             Node n = neighborsList.item(k);
             if ("neighbor".equals(n.getNodeName())) {
                 // found a neighbor, add it to list 
-                neighbors.add(n.getAttributes().getNamedItem("name").getNodeValue());
+                String name = n.getAttributes().getNamedItem("name").getNodeValue();
+                name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                neighbors.add(name);
             }  
         }
 

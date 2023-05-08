@@ -9,7 +9,7 @@ public class GameManager {
     private int day;
     private int completedScenes;
     private int maxDays = 4;
-    private boolean hasMoved = false;
+    private boolean canMove = false;
     public GameManager(Board board, Player[] players, Bank bank) {
         this.bank = bank;
         this.board = board;
@@ -106,13 +106,13 @@ public class GameManager {
     public void move(String destinationRoom) {
         // destinationRoom will be null if the user tries to move twice
         if (destinationRoom != null) {
-            if (!this.hasMoved) {
+            if (!this.canMove) {
                 boolean success = board.movePlayer(currentPlayer.getPlayerNumber(), destinationRoom);
                 if (!success) {
                     gui.invalidMove();
                 }
                 else {
-                    this.hasMoved = true;
+                    this.canMove = true;
                     gui.displayMove(currentPlayer.getPlayerNumber(), destinationRoom);
                     
                 }
@@ -150,7 +150,7 @@ public class GameManager {
     public void endTurn(){
         int currentPlayerNum = currentPlayer.getPlayerNumber();
         this.currentPlayer = this.players[currentPlayerNum % this.players.length];
-        this.hasMoved = false;
+        this.canMove = false;
     }
 
     public void endGame(){
@@ -158,7 +158,7 @@ public class GameManager {
     }
 
     public boolean canMove() {
-        return !this.hasMoved;
+        return !this.canMove;
     }
 
 }
