@@ -1,4 +1,6 @@
 
+import java.util.Random;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 public class Deadwood{
@@ -7,6 +9,7 @@ public class Deadwood{
     static Scene[] scenes;
     public static void main(String[] args) throws ParserConfigurationException, Exception {
         
+        Random rand = new Random(2);
         // get number of players
         if (args.length!= 1) {
             System.out.println("Program requires one argument (number of players)");
@@ -25,31 +28,17 @@ public class Deadwood{
             return;
         }
 
-
-
-        Controller controller;
-        Bank bank;
-        Board board;
-        GameManager manager;
-        Player[] players = new Player[numPlayers];
-
         // parses the XML files and initializes the rooms and scenes
         parseXML();
 
-        
+        Bank bank = new Bank();
+        Board board = new Board(numPlayers, rooms, scenes, rand);
+        Player[] players = new Player[numPlayers];
+        GameManager manager = new GameManager(board, players, bank);
 
-
-        
-    }
-
-    // initializes game manager, board, players, etc
-    private static void startGame(){
-
-    }
-
-    // resets entire game state (days, players, etc)
-    private static void resetGame(){
-
+        // main gameplay loop
+        manager.mainLoop();
+  
     }
 
     private static void parseXML() throws Exception{
@@ -68,7 +57,6 @@ public class Deadwood{
             }
             prefix = "XML_Files/";
         }
-
         rooms = parser.readBoardData(parser.getDocFromFile(prefix + "board.xml"));
         scenes = parser.readCardData(parser.getDocFromFile(prefix + "cards.xml"));
     }

@@ -4,18 +4,9 @@ public class Scene {
     private int budget;
     private Role[] roles;
     private int sceneNumber;
-
-    // the state of a scene card
-    public enum SceneState {
-        UNDRAWN,
-        HIDDEN,
-        ACTIVE,
-        COMPLETED,
-    }
-    
-    private SceneState state;
+    private boolean isFlipped;
     public Scene(String name, int sceneNumber, String caption, int budget, Role[] roles) {
-        this.state = SceneState.UNDRAWN;
+        this.isFlipped = false;
         this.name = name;
         this.caption = caption;
         this.budget = budget;
@@ -44,19 +35,10 @@ public class Scene {
     }
 //#endregion
 
-    // puts the card on the board
-    public void putCardOnBoard(){
-
-    }
-
     // flips the card over
     public void flipCard() {
-
+        this.isFlipped = !this.isFlipped;
     }
 
-    // remove the card from the board
-    public void removeCardFromBoard() {
-
-    }
 }   
 

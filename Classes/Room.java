@@ -27,10 +27,6 @@ public class Room {
         return sceneCard;
     }
 
-    public void setSceneCard(Scene sceneCard) {
-        this.sceneCard = sceneCard;
-    }
-
     public String[] getAdjacentRoomNames() {
         return adjacentRoomNames;
     }
@@ -48,4 +44,10 @@ public class Room {
         //     System.out.print(str + ", ");
         // }
     }
+
+    public void setSceneCard(Scene sceneCard) {
+        this.sceneCard = sceneCard;
+    }
+
+
 }
