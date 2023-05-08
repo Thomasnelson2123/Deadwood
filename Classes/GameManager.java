@@ -104,15 +104,18 @@ public class GameManager {
 
     // resolve the "move" action a player may take
     public void move(String destinationRoom) {
-        if (!this.hasMoved) {
-            boolean success = board.movePlayer(currentPlayer.getPlayerNumber(), destinationRoom);
-            if (!success) {
-                gui.invalidMove();
-            }
-            else {
-                this.hasMoved = true;
-                gui.displayMove(currentPlayer.getPlayerNumber(), destinationRoom);
-                
+        // destinationRoom will be null if the user tries to move twice
+        if (destinationRoom != null) {
+            if (!this.hasMoved) {
+                boolean success = board.movePlayer(currentPlayer.getPlayerNumber(), destinationRoom);
+                if (!success) {
+                    gui.invalidMove();
+                }
+                else {
+                    this.hasMoved = true;
+                    gui.displayMove(currentPlayer.getPlayerNumber(), destinationRoom);
+                    
+                }
             }
         }
     }
@@ -147,10 +150,15 @@ public class GameManager {
     public void endTurn(){
         int currentPlayerNum = currentPlayer.getPlayerNumber();
         this.currentPlayer = this.players[currentPlayerNum % this.players.length];
+        this.hasMoved = false;
     }
 
     public void endGame(){
         System.exit(1);
+    }
+
+    public boolean canMove() {
+        return !this.hasMoved;
     }
 
 }

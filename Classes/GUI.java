@@ -13,7 +13,7 @@ public class GUI {
 
     // lets player type the command they want to execute
     public String getUserInput() {
-        System.out.println("Enter command");
+        System.out.print("\nEnter command \n");
         return scanner.nextLine();
     }
 
@@ -80,10 +80,15 @@ public class GUI {
     }
 
     public String[] move() {
-        System.out.println("Where would you like to move to?");
-        String destination = scanner.nextLine();
-
-        return new String[] {"move", destination};   
+        if (manager.canMove()) {
+            System.out.println("Where would you like to move to?");
+            String destination = scanner.nextLine();
+            return new String[] {"move", destination}; 
+        } 
+        else {
+            System.out.println("You can't move more than one room in a turn!");
+            return new String[] {"move", null};
+        }
 
     }
 

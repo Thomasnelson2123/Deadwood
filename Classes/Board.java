@@ -76,7 +76,7 @@ public class Board {
     // moves player from one room to an adjacent room
     public boolean movePlayer(int playerNum, String destination) {
     
-        boolean isValid = isValidMove(playerLocations[playerNum],destination);
+        boolean isValid = isValidMove(playerLocations[playerNum - 1],destination);
         if(isValid){
             playerLocations[playerNum - 1] = destination;
         }
