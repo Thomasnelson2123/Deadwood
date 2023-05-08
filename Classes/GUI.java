@@ -64,8 +64,10 @@ public class GUI {
 
     // get current location of player
     public String[] getLocation() {
-        String location = manager.getPlayerLocation(manager.getCurrentPlayerNum());
+        String location = manager.getPlayerLocation();
         System.out.println("Current player is at: " + location);
+        System.out.print("Nearby rooms are: ");
+        displayNeighbors();
         return null;
     }
 
@@ -79,7 +81,7 @@ public class GUI {
 
     public String[] move() {
         System.out.println("Where would you like to move to?");
-        String destination = scanner.nextLine().toLowerCase();
+        String destination = scanner.nextLine();
 
         return new String[] {"move", destination};   
 
@@ -87,7 +89,7 @@ public class GUI {
 
     public String[] takeRole() {
         System.out.println("Which role would you like to take?");
-        String targetRole = scanner.nextLine().toLowerCase();
+        String targetRole = scanner.nextLine();
 
         return new String[] {"work", targetRole};
     }
@@ -104,12 +106,31 @@ public class GUI {
 
     public String[] upgrade() {
         System.out.println("Which rank would you like to upgrade to?");
-        String targetRank = scanner.nextLine().toLowerCase();
+        String targetRank = scanner.nextLine();
 
         System.out.println("Would you like to use [money] or [credits]?");
-        String paymentType = scanner.nextLine().toLowerCase();
+        String paymentType = scanner.nextLine();
         
         return new String[] {"upgrade", targetRank, paymentType};
+    }
+
+    
+    public void invalidMove() {
+        System.out.println("You cannot move there!");
+        System.out.print("Valid options are: ");
+        displayNeighbors();
+    }
+
+    public void displayMove(int playerNum, String room) {
+        System.out.println("Player " + playerNum + " has moved to " + room);
+    }
+
+    private void displayNeighbors() {
+        String[] neighbors = manager.getPlayerRoomNeighbors();
+        for (String neighbor: neighbors) {
+            System.out.print(neighbor + ", ");
+        }
+        System.out.print("\n");
     }
 
 

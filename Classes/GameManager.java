@@ -9,6 +9,7 @@ public class GameManager {
     private int day;
     private int completedScenes;
     private int maxDays = 4;
+    private boolean hasMoved = false;
     public GameManager(Board board, Player[] players, Bank bank) {
         this.bank = bank;
         this.board = board;
@@ -58,19 +59,19 @@ public class GameManager {
         
         switch(args[0]){
             case "act":
-                act(currentPlayer);
+                act();
                 break;
             case "rehearse":
-                rehearse(currentPlayer);
+                rehearse();
                 break;
             case "work":
-                takeRole(currentPlayer);
+                takeRole();
                 break;
             case "move":
-                move(currentPlayer,args[1]);
+                move(args[1]);
                 break;
             case "upgrade":
-                upgradeRank(currentPlayer);
+                upgradeRank();
                 break;
             case "end": //end turn
                 endTurn();
@@ -81,50 +82,49 @@ public class GameManager {
         }
     }
     
-    // gives one player the option to take actions
-    public void playerTakeTurn(Player player){
-
-    }
-
     // resets players/scenes to next day
     public void nextDay(){
 
     }
 
     // resolve the "act" action a player may take
-    public void act(Player player){
+    public void act(){
 
     }
 
     // resolve the "rehearse" action a player may take
-    public void rehearse(Player player){
+    public void rehearse(){
 
     }
 
     // resolve the "take role" action a player may take
-    public void takeRole(Player player){
+    public void takeRole(){
 
     }
 
     // resolve the "move" action a player may take
-    public void move(Player player, String destinationRoom) {
-        int playerNum = player.getPlayerNumber();
-        boolean success = board.movePlayer(playerNum, destinationRoom);
-        if (!success) {
-
+    public void move(String destinationRoom) {
+        if (!this.hasMoved) {
+            boolean success = board.movePlayer(currentPlayer.getPlayerNumber(), destinationRoom);
+            if (!success) {
+                gui.invalidMove();
+            }
+            else {
+                this.hasMoved = true;
+                gui.displayMove(currentPlayer.getPlayerNumber(), destinationRoom);
+                
+            }
         }
-        
-
     }
 
     // resolve the "upgrade rank" action a player may take
-    public void upgradeRank(Player player){
+    public void upgradeRank(){
 
     }
 
     // pay players for completing a scene
     public void payPlayers(){
-
+        this.bank.payPlayers(players, completedScenes, null, null);
     }
 
     public Player getCurrentPlayer() {
@@ -135,8 +135,13 @@ public class GameManager {
         return getCurrentPlayer().getPlayerNumber();
     }
 
-    public String getPlayerLocation(int playerNum){
-        return board.getPlayerRoom(playerNum);
+    public String getPlayerLocation(){
+        return board.getPlayerRoom(this.getCurrentPlayerNum());
+    }
+
+    public String[] getPlayerRoomNeighbors() {
+        String room = board.getPlayerRoom(getCurrentPlayerNum());
+        return board.getRoomNeighbors(room);
     }
 
     public void endTurn(){

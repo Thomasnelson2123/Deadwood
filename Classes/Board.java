@@ -16,6 +16,9 @@ public class Board {
         rooms = new HashMap<String, Room>();
         scenes = new HashMap<String, Scene>();
         playerLocations = new String[numPlayers];
+        for (int i = 0; i < playerLocations.length; i++){
+            playerLocations[i] = "Trailer";
+        }
         for (Room room : roomData) {
             rooms.put(room.getRoomName(), room);
         }
@@ -43,7 +46,7 @@ public class Board {
         String[] adjacentRooms = rooms.get(start).getAdjacentRoomNames();
 
         for(String x : adjacentRooms){
-            if(x.equals(destination)){
+            if(x.equalsIgnoreCase(destination)){
                 isValid = true;
                 break;
             }
@@ -75,7 +78,7 @@ public class Board {
     
         boolean isValid = isValidMove(playerLocations[playerNum],destination);
         if(isValid){
-            playerLocations[playerNum] = destination;
+            playerLocations[playerNum - 1] = destination;
         }
 
         return isValid;
@@ -85,6 +88,10 @@ public class Board {
     // returns current player room based on id
     public String getPlayerRoom(int playerNum) {
         return playerLocations[playerNum - 1];
+    }
+
+    public String[] getRoomNeighbors(String room) {
+        return rooms.get(room).getAdjacentRoomNames();
     }
 
 }
