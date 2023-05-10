@@ -5,13 +5,15 @@ public class Room {
     private String[] adjacentRoomNames;
     private int[] dims;
     private ShotCounter[] shots;
-    public Room(Role[] roles, String roomName, String[] adjacentRoomNames, int[] dims, ShotCounter[] shots) {
+    private boolean hasScene;
+    public Room(Role[] roles, String roomName, String[] adjacentRoomNames, int[] dims, ShotCounter[] shots, boolean hasScene) {
         this.roles = roles;
         this.roomName = roomName;
         this.sceneCard = null;
         this.adjacentRoomNames = adjacentRoomNames;
         this.dims = dims;
         this.shots = shots;
+        this.hasScene = hasScene;
     }
 
     //#region getters
@@ -47,6 +49,10 @@ public class Room {
 
     public void setSceneCard(Scene sceneCard) {
         this.sceneCard = sceneCard;
+    }
+
+    public boolean hasScene() {
+        return this.hasScene;
     }
 
 

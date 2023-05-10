@@ -70,7 +70,7 @@ public class ParseXML {
             // create the room with gathered data and add to rooms list
             Room room = new Room(roles.toArray(new Role[roles.size()]), roomName, 
             neighbors.toArray(new String[neighbors.size()]), roomDims, 
-            shots.toArray(new ShotCounter[shots.size()]));
+            shots.toArray(new ShotCounter[shots.size()]), true);
             rooms.add(room);
         }
         parseOfficeOrTrailer(root, "trailer", rooms);
@@ -132,7 +132,7 @@ public class ParseXML {
         }
         Room room = new Room(null, whichRoom.substring(0, 1).toUpperCase() + whichRoom.substring(1), 
         neighbors.toArray(new String[neighbors.size()]), roomDims, 
-        null);
+        null, false);
         rooms.add(room);
         
     }
