@@ -5,6 +5,7 @@ public class Player {
     private int credits;
     private int playerNumber;
     private int rehearsalChipCount;
+    private Role currentRole;
 
     public Player(int playerNumber) {
         this.playerNumber = playerNumber;
@@ -12,6 +13,7 @@ public class Player {
         this.money = 0;
         this.credits = 0;
         this.rehearsalChipCount = 0;
+        this.currentRole = null;
         //this.currentLocation = Trailer
     }
 
@@ -54,6 +56,21 @@ public class Player {
 
     public void setRank(int newRank){
         this.rank = newRank;
+    }
+
+    public Role getCurrentRole() {
+        return currentRole;
+    }
+
+    public void setCurrentRole(Role role) throws Exception {
+        if (currentRole!= null) {
+            throw new Exception("Current player is already working a different role");
+        }
+        this.currentRole = role;
+    }
+
+    public void exitRole() {
+        this.currentRole = null;
     }
 
 }
