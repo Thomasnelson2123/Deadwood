@@ -68,6 +68,7 @@ public class GUI {
         System.out.println("Current player is at: " + location);
         System.out.print("Nearby rooms are: ");
         displayNeighbors();
+        printRoomInfo(location);
         return null;
     }
 
@@ -136,6 +137,52 @@ public class GUI {
             System.out.print(neighbor + ", ");
         }
         System.out.print("\n");
+    }
+
+    public void invalidUpgrade(boolean badInput){
+        System.out.println("Upgrade failed!");
+        if(badInput){
+            System.out.println("Payment type not detected. You may only pay with [money] or [credits].");
+        }else{
+            System.out.println("You do not possess enough resources to upgrade.");
+        }
+    }
+
+    private void printRoomInfo(String room) {
+        String[][] roomRoleInfo = this.manager.getRoomRoleInfo(room);
+        String[][] sceneRoleInfo = this.manager.getSceneRoleInfo(room);
+        String[] sceneInfo = this.manager.getSceneInfo(room);
+
+        //scene info
+        //name - caption
+        if(sceneInfo != null){
+            System.out.println("SCENE: "+sceneInfo[0]+" - "+sceneInfo[1]);
+            System.out.println("Budget: "+sceneInfo[2]+" - Scene number: "+sceneInfo[3]+" - Flipped: "+sceneInfo[4]);
+            System.out.println("");
+        }
+
+        //scene role info
+        if(sceneRoleInfo != null){
+            for(int i = 0; i < sceneRoleInfo.length; i++){
+                //name - caption
+                System.out.println("ROLE: "+sceneRoleInfo[i][0] + " - "+sceneRoleInfo[i][1]);
+                //difficulty - on card - is occupied
+                System.out.println("difficulty: "+sceneRoleInfo[i][2]+" - On card: "+sceneRoleInfo[i][3]+" - Occupied: "+sceneRoleInfo[i][4]);
+                System.out.println("");
+            }
+        }
+
+        //normal role info
+        if(roomRoleInfo != null){
+            for(int i = 0; i < roomRoleInfo.length; i++){
+                //name - caption
+                System.out.println("ROLE: "+roomRoleInfo[i][0] + " - "+roomRoleInfo[i][1]);
+                //difficulty - on card - is occupied
+                System.out.println("difficulty: "+roomRoleInfo[i][2]+" - On card: "+roomRoleInfo[i][3]+" - Occupied: "+roomRoleInfo[i][4]);
+                System.out.println("");
+            }
+        }
+
     }
 
 

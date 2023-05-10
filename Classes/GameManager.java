@@ -9,7 +9,7 @@ public class GameManager {
     private int day;
     private int completedScenes;
     private int maxDays = 4;
-    private boolean canMove = false;
+    private boolean canMove = true;
     public GameManager(Board board, Player[] players, Bank bank) {
         this.bank = bank;
         this.board = board;
@@ -71,7 +71,7 @@ public class GameManager {
                 move(args[1]);
                 break;
             case "upgrade":
-                upgradeRank();
+                upgradeRank(args[1], args[2]);
                 break;
             case "end": //end turn
                 endTurn();
@@ -94,7 +94,9 @@ public class GameManager {
 
     // resolve the "rehearse" action a player may take
     public void rehearse(){
-
+        
+        
+        //int max_rehearsal_chips = difficulty - 1
     }
 
     // resolve the "take role" action a player may take
@@ -106,13 +108,13 @@ public class GameManager {
     public void move(String destinationRoom) {
         // destinationRoom will be null if the user tries to move twice
         if (destinationRoom != null) {
-            if (!this.canMove) {
+            if (this.canMove) {
                 boolean success = board.movePlayer(currentPlayer.getPlayerNumber(), destinationRoom);
                 if (!success) {
                     gui.invalidMove();
                 }
                 else {
-                    this.canMove = true;
+                    this.canMove = false;
                     gui.displayMove(currentPlayer.getPlayerNumber(), destinationRoom);
                     
                 }
@@ -121,8 +123,28 @@ public class GameManager {
     }
 
     // resolve the "upgrade rank" action a player may take
-    public void upgradeRank(){
+    public void upgradeRank(String targetRank, String paymentType){
+        
+        int targetRankInt = Integer.parseInt(targetRank);
+        boolean isUsingMoney = true;
 
+        boolean success = false;
+        boolean badInput = false;
+
+        if(paymentType.toLowerCase(null) == "money"){
+            isUsingMoney = true;
+            success = this.bank.upgradePlayer(currentPlayer,targetRankInt,isUsingMoney);
+        }else if(paymentType.toLowerCase(null) == "credits"){
+            isUsingMoney = false;
+            success = this.bank.upgradePlayer(currentPlayer,targetRankInt,isUsingMoney);
+        }else{
+            badInput = true;
+        }
+
+        if(!success){
+            gui.invalidUpgrade(badInput);
+        }
+        
     }
 
     // pay players for completing a scene
@@ -150,7 +172,7 @@ public class GameManager {
     public void endTurn(){
         int currentPlayerNum = currentPlayer.getPlayerNumber();
         this.currentPlayer = this.players[currentPlayerNum % this.players.length];
-        this.canMove = false;
+        this.canMove = true;
     }
 
     public void endGame(){
@@ -158,11 +180,19 @@ public class GameManager {
     }
 
     public boolean canMove() {
-        return !this.canMove;
+        return this.canMove;
     }
 
-    public String[][] getRoomInfo(String room) {
-        return null;
+    public String[][] getRoomRoleInfo(String room) {
+        return this.board.getRoomRoles(room);
+    }
+
+    public String[][] getSceneRoleInfo(String room) {
+        return this.board.getSceneRoles(room);
+    }
+
+    public String[] getSceneInfo(String room) {
+        return this.board.getSceneInfo(room);
     }
 
 }

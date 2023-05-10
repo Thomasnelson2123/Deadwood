@@ -33,6 +33,10 @@ public class Scene {
     public Role[] getRoles() {
         return roles;
     }
+
+    public boolean isFlipped() {
+        return isFlipped;
+    }
 //#endregion
 
     // flips the card over

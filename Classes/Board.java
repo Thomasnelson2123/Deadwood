@@ -11,22 +11,20 @@ public class Board {
     private Random rand;
     
 
-    public Board(int numPlayers, Room[] roomData, Scene[] sceneData, Random rand) {
+    public Board(int numPlayers, Room[] roomData, Scene[] sceneData, Random rand) throws Exception {
         this.unusedScenes = new ArrayList<Scene>();
         rooms = new HashMap<String, Room>();
         scenes = new HashMap<String, Scene>();
         playerLocations = new String[numPlayers];
-        for (int i = 0; i < playerLocations.length; i++){
-            playerLocations[i] = "Trailer";
-        }
         for (Room room : roomData) {
-            rooms.put(room.getRoomName(), room);
+            rooms.put(room.getRoomName().toLowerCase(), room);
         }
         for (Scene scene: sceneData) {
-            scenes.put(scene.getName(), scene);
+            scenes.put(scene.getName().toLowerCase(), scene);
             this.unusedScenes.add(scene);
         }
         this.rand = rand;
+        resetBoard();
 
     }
 
@@ -43,7 +41,7 @@ public class Board {
         boolean isValid = false;
         
         //get list of adjacent rooms
-        String[] adjacentRooms = rooms.get(start).getAdjacentRoomNames();
+        String[] adjacentRooms = getRoom(start).getAdjacentRoomNames();
 
         for(String x : adjacentRooms){
             if(x.equalsIgnoreCase(destination)){
@@ -53,6 +51,10 @@ public class Board {
         }
         
         return isValid;
+    }
+
+    private Room getRoom(String room) {
+        return this.rooms.get(room.toLowerCase());
     }
 
     // resets board
@@ -79,6 +81,7 @@ public class Board {
         boolean isValid = isValidMove(playerLocations[playerNum - 1],destination);
         if(isValid){
             playerLocations[playerNum - 1] = destination;
+            getRoom(destination).getSceneCard().flipCard();
         }
 
         return isValid;
@@ -91,12 +94,46 @@ public class Board {
     }
 
     public String[] getRoomNeighbors(String room) {
-        return rooms.get(room).getAdjacentRoomNames();
+        return getRoom(room).getAdjacentRoomNames();
     }
 
     public String[][] getRoomRoles(String room) {
-        Room r = rooms.get(room);
+        Room r = getRoom(room);
+        if (!r.hasScene()) {
+            return null;
+        }
         Role[] roles = r.getRoles();
+        return getRoleInfo(roles);
+
+    }
+
+    public String[][] getSceneRoles(String room) {
+        Room r = getRoom(room);
+        if (!r.hasScene()) {
+            return null;
+        }
+        Scene s = r.getSceneCard();
+        return getRoleInfo(s.getRoles());
+    }
+
+    public String[] getSceneInfo(String room) {
+        Room r = getRoom(room);
+        if (!r.hasScene()) {
+            return null;
+        }
+        Scene s = r.getSceneCard();
+        String[] sceneInfo = new String[5];
+        sceneInfo[0] = s.getName();
+        sceneInfo[1] = s.getCaption();
+        sceneInfo[2] = Integer.toString(s.getBudget());
+        sceneInfo[3] = Integer.toString(s.getSceneNumber());
+        sceneInfo[4] = Boolean.toString(s.isFlipped());
+        return sceneInfo;
+
+
+    }
+
+    private String[][] getRoleInfo(Role[] roles) {
         int numRoles = roles.length;
         String[][] info = new String[numRoles][5];
         for (int i = 0; i < numRoles; i++) {

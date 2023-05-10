@@ -5,6 +5,7 @@ public class Role {
     private boolean onCard;
     private boolean isOccupied;
     private int[] dims; // probably not needed for first GUI
+    private Player player;
     public Role(String name, String caption, int difficulty, boolean onCard, int[] dims) {
         this.name = name;
         this.caption = caption;
@@ -12,6 +13,7 @@ public class Role {
         this.onCard = onCard;
         this.isOccupied = false;
         this.dims = dims;
+        this.player = null;
     }
 
     public int[] getDims() {
@@ -37,8 +39,16 @@ public class Role {
     public boolean getOccupied() {
         return isOccupied;
     }
+
+    public Player getPlayer(){
+        return player;
+    }
     
     public void setOccupied(boolean isOccupied) {
         this.isOccupied = isOccupied;
+    }
+
+    public void setPlayer(Player setPlayer){
+        this.player = setPlayer;
     }
 }
