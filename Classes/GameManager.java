@@ -161,4 +161,8 @@ public class GameManager {
         return !this.canMove;
     }
 
+    public String[][] getRoomInfo(String room) {
+        return null;
+    }
+
 }
