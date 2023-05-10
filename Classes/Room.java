@@ -33,6 +33,20 @@ public class Room {
         return adjacentRoomNames;
     }
 
+    public int getTotalShots() {
+        return this.shots.length;
+    }
+
+    public int getShotsRemaining() {
+        int total = 0;
+        for (ShotCounter shot: this.shots) {
+            if (shot.hasShot()) {
+                total++;
+            }
+        }
+        return total;
+    }
+
      //#endregion
 
     // for debug

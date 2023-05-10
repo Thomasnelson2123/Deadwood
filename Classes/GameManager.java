@@ -195,4 +195,8 @@ public class GameManager {
         return this.board.getSceneInfo(room);
     }
 
+    public int[] getShotCounterInfo(String room) {
+        return this.board.getShotCounters(room);
+    }
+
 }

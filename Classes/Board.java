@@ -147,4 +147,12 @@ public class Board {
         return info;
     }
 
+    public int[] getShotCounters(String room) {
+        Room r = this.getRoom(room);
+        if (!r.hasScene()) {
+            return null;
+        }
+        return new int[] {r.getShotsRemaining(), r.getTotalShots()};
+    }
+
 }

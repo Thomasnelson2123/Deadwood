@@ -152,6 +152,7 @@ public class GUI {
         String[][] roomRoleInfo = this.manager.getRoomRoleInfo(room);
         String[][] sceneRoleInfo = this.manager.getSceneRoleInfo(room);
         String[] sceneInfo = this.manager.getSceneInfo(room);
+        int[] shots = this.manager.getShotCounterInfo(room);
 
         //scene info
         //name - caption
@@ -170,6 +171,11 @@ public class GUI {
                 System.out.println("difficulty: "+sceneRoleInfo[i][2]+" - On card: "+sceneRoleInfo[i][3]+" - Occupied: "+sceneRoleInfo[i][4]);
                 System.out.println("");
             }
+        }
+
+        if(shots != null) {
+            System.out.println(shots[0] + "of " + shots[1] + " shots remaining");
+            System.out.println();
         }
 
         //normal role info
