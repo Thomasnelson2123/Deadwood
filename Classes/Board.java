@@ -94,4 +94,20 @@ public class Board {
         return rooms.get(room).getAdjacentRoomNames();
     }
 
+    public String[][] getRoomRoles(String room) {
+        Room r = rooms.get(room);
+        Role[] roles = r.getRoles();
+        int numRoles = roles.length;
+        String[][] info = new String[numRoles][5];
+        for (int i = 0; i < numRoles; i++) {
+            Role role = roles[i];
+            info[i][0] = role.getName();
+            info[i][1] = role.getCaption();
+            info[i][2] = Integer.toString(role.getDifficulty());
+            info[i][3] = Boolean.toString(role.getOnCard());
+            info[i][4] = Boolean.toString(role.getOccupied());
+        }
+        return info;
+    }
+
 }
