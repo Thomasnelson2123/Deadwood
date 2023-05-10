@@ -41,4 +41,5 @@ public class Role {
     public void setOccupied(boolean isOccupied) {
         this.isOccupied = isOccupied;
     }
+
 }
