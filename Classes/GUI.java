@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class GUI {
-    Scanner scanner;
-    GameManager manager;
+    private Scanner scanner;
+    private GameManager manager;
     //ArrayList<String> roomList = new ArrayList<String>();
     public GUI(GameManager manager) {
         this.manager = manager;
@@ -81,11 +81,18 @@ public class GUI {
     }
 
     public String[] move() {
-        if (manager.canMove()) {
+        // current player is allowed to move, prompt them for where they would like to go
+        if (manager.canCurrentPlayerMove()) {
             System.out.println("Where would you like to move to?");
             String destination = scanner.nextLine();
             return new String[] {"move", destination}; 
         } 
+        // find out if it is because current player is working
+        else if (this.manager.isCurrentPlayerWorking()) {
+            System.out.println("You cannot leave your role until you wrap!");
+            return new String[] {"move", null};
+        }
+        // player is not working a role, so they probably already moved this turn
         else {
             System.out.println("You can't move more than one room in a turn!");
             return new String[] {"move", null};
@@ -164,6 +171,7 @@ public class GUI {
 
         //scene role info
         if(sceneRoleInfo != null){
+            System.out.println("On card roles: \n");
             for(int i = 0; i < sceneRoleInfo.length; i++){
                 //name - caption
                 System.out.println("ROLE: "+sceneRoleInfo[i][0] + " - "+sceneRoleInfo[i][1]);
@@ -172,14 +180,10 @@ public class GUI {
                 System.out.println("");
             }
         }
-
-        if(shots != null) {
-            System.out.println(shots[0] + "of " + shots[1] + " shots remaining");
-            System.out.println();
-        }
-
+        
         //normal role info
         if(roomRoleInfo != null){
+            System.out.println("Off card roles: \n");
             for(int i = 0; i < roomRoleInfo.length; i++){
                 //name - caption
                 System.out.println("ROLE: "+roomRoleInfo[i][0] + " - "+roomRoleInfo[i][1]);
@@ -189,6 +193,29 @@ public class GUI {
             }
         }
 
+        // display shots left
+        if(shots != null) {
+            System.out.println(shots[0] + " of " + shots[1] + " shots remaining");
+            System.out.println();
+        }
+
+    }
+
+    public void roleNotInRoom() {
+        System.out.println("The specified role is not in your current room. You can only take on a role if you are near it!");
+    }
+
+    public void roleNotAvailable() {
+        System.out.println("That role is not available!");
+    }
+
+
+    public void displayTakeRole(int playerNum, String role) {
+        System.out.println("Player " + playerNum + " has taken the role of: " + role);
+    }
+
+    public void rankTooLow() {
+        System.out.println("Your rank is too low to take that role!");
     }
 
 

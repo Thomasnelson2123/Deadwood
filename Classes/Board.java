@@ -5,7 +5,7 @@ import java.util.Random;
 public class Board {
     private HashMap<String, Room> rooms; // name of each room (string) -> Room object
     private String[] playerLocations;
-    private Player[] players;
+    private Role[] playerRoles;
     private HashMap<String, Scene> scenes;
     private ArrayList<Scene> unusedScenes;
     private Random rand;
@@ -13,14 +13,15 @@ public class Board {
 
     public Board(int numPlayers, Room[] roomData, Scene[] sceneData, Random rand) throws Exception {
         this.unusedScenes = new ArrayList<Scene>();
-        rooms = new HashMap<String, Room>();
-        scenes = new HashMap<String, Scene>();
-        playerLocations = new String[numPlayers];
+        this.rooms = new HashMap<String, Room>();
+        this.scenes = new HashMap<String, Scene>();
+        this.playerLocations = new String[numPlayers];
+        this.playerRoles = new Role[numPlayers];
         for (Room room : roomData) {
-            rooms.put(room.getRoomName().toLowerCase(), room);
+            this.rooms.put(room.getRoomName().toLowerCase(), room);
         }
         for (Scene scene: sceneData) {
-            scenes.put(scene.getName().toLowerCase(), scene);
+            this.scenes.put(scene.getName().toLowerCase(), scene);
             this.unusedScenes.add(scene);
         }
         this.rand = rand;
@@ -153,6 +154,99 @@ public class Board {
             return null;
         }
         return new int[] {r.getShotsRemaining(), r.getTotalShots()};
+    }
+
+    // returns true if role is in room, returns false otherwise
+    public boolean isRoleInRoom(String room, String role) {
+        Room r = this.getRoom(room);
+        Scene s = r.getSceneCard();
+        Role[] roles;
+        // check if role is on the scene card
+        if (s != null) {
+            roles = s.getRoles();
+            if (roles == null) {
+                return false;
+            }
+            for (Role sceneRole: s.getRoles()) {
+                if (sceneRole.getName().equalsIgnoreCase(role)) {
+                    // role is on the card, found it
+                    return true;
+                }
+            }
+        }
+        roles = r.getRoles();
+        if (roles == null) {
+            return false;
+        }
+        for (Role roomRole: r.getRoles()) {
+            if (roomRole.getName().equalsIgnoreCase(role)) {
+                // role is in the room, found it
+                return true;
+            }
+        }
+        // role not in card or room, return false
+        return false;
+
+    }
+
+    // checks every role on the board to match it's name to given role,
+    // returns whether that role is free or not
+    // will also return false if the role is not found
+    public boolean isRoleAvailable(String role) {
+        Role r = this.getRole(role);
+        if (r == null) {
+            return false;
+        }
+        return r.isRoleAvailable();
+
+    }
+
+    public void setPlayerRole(String role, int playerNum){
+        try {
+            Role r = this.getRole(role);
+            this.playerRoles[playerNum - 1] = r;
+            r.setOccupied();
+            
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private Role getRole(String role) {
+        // search every room for role
+        for (Room r: this.rooms.values()) {
+            // check off card roles
+            if (r.getRoles() != null) {
+                for (Role roomRole : r.getRoles()) {
+                    if (roomRole.getName().equalsIgnoreCase(role)) {
+                        return roomRole;
+                    }               
+                }
+            }
+            // check on card roles
+            Scene s = r.getSceneCard();
+            if (s != null) {
+                if (s.getRoles() != null) {
+                    for (Role sceneRole: s.getRoles()) {
+                        if (sceneRole.getName().equalsIgnoreCase(role)) {
+                            return sceneRole;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // returns true if role's difficulty is less than or equal to rank
+    public int getRoleDifficulty(String role) {
+        Role r = this.getRole(role);
+        // role doesn't exist, so return huge number - impossible to work that!
+        if (r == null) {
+            return Integer.MAX_VALUE;
+        }
+        return r.getDifficulty();
     }
 
 }

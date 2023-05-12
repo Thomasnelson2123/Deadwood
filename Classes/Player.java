@@ -5,7 +5,8 @@ public class Player {
     private int credits;
     private int playerNumber;
     private int rehearsalChipCount;
-    private Role currentRole;
+    private boolean canMove;
+    private boolean isWorking;
 
     public Player(int playerNumber) {
         this.playerNumber = playerNumber;
@@ -13,7 +14,8 @@ public class Player {
         this.money = 0;
         this.credits = 0;
         this.rehearsalChipCount = 0;
-        this.currentRole = null;
+        this.canMove = true;
+        this.isWorking = false;
         //this.currentLocation = Trailer
     }
 
@@ -42,7 +44,7 @@ public class Player {
     }
 
     // returns player's number. Every player has unique player number
-    public int getPlayerNumber() {
+    public int getPlayerNum() {
         return playerNumber;
     }
 
@@ -58,19 +60,35 @@ public class Player {
         this.rank = newRank;
     }
 
-    public Role getCurrentRole() {
-        return currentRole;
+    public boolean canMove() {
+        return this.canMove;
     }
 
-    public void setCurrentRole(Role role) throws Exception {
-        if (currentRole!= null) {
-            throw new Exception("Current player is already working a different role");
-        }
-        this.currentRole = role;
+    public boolean isWorking() {
+        return this.isWorking;
     }
 
-    public void exitRole() {
-        this.currentRole = null;
+    public void setCanMove(boolean canMove) {
+        this.canMove = canMove;
     }
+
+    public void setWorking(boolean isWorking) {
+        this.isWorking = isWorking;
+    }
+
+    // public Role getCurrentRole() {
+    //     return currentRole;
+    // }
+
+    // public void setCurrentRole(Role role) throws Exception {
+    //     if (currentRole!= null) {
+    //         throw new Exception("Current player is already working a different role");
+    //     }
+    //     this.currentRole = role;
+    // }
+
+    // public void exitRole() {
+    //     this.currentRole = null;
+    // }
 
 }

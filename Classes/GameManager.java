@@ -9,7 +9,6 @@ public class GameManager {
     private int day;
     private int completedScenes;
     private int maxDays = 4;
-    private boolean canMove = true;
     public GameManager(Board board, Player[] players, Bank bank) {
         this.bank = bank;
         this.board = board;
@@ -44,7 +43,10 @@ public class GameManager {
     // the main loop for taking turns between players in the game
     public void mainLoop(){
         while(true) {
-
+            // if the current player is working, they shouldn't be able to move
+            if (this.currentPlayer.isWorking()) {
+                this.currentPlayer.setCanMove(false);
+            }
             String[] args = gui.parseUserInput();
             // if null: user entered gui only command, manager needs not do anything
             if (args != null) {
@@ -65,7 +67,7 @@ public class GameManager {
                 rehearse();
                 break;
             case "work":
-                takeRole();
+                takeRole(args[1]);
                 break;
             case "move":
                 move(args[1]);
@@ -100,22 +102,42 @@ public class GameManager {
     }
 
     // resolve the "take role" action a player may take
-    public void takeRole(){
-
+    public void takeRole(String role){
+        // get room player is in
+        String playerRoom = board.getPlayerRoom(currentPlayer.getPlayerNum());
+        // role isn't in same room as player, they can't take that role
+        if (!board.isRoleInRoom(playerRoom, role)) {
+            this.gui.roleNotInRoom();
+        }
+        // role IS in room, but it isn't available
+        else if (!board.isRoleAvailable(role)) {
+            this.gui.roleNotAvailable();
+        }
+        // role IS available, but player does not have high enough of a rank
+        else if (this.board.getRoleDifficulty(role) > this.currentPlayer.getRank()) {
+            this.gui.rankTooLow();
+        }
+        else {
+            // at this point role is available, tell player and update things
+            this.gui.displayTakeRole(this.currentPlayer.getPlayerNum(), role);
+            this.currentPlayer.setWorking(true);
+            this.board.setPlayerRole(role, this.getCurrentPlayerNum());
+        }
+               
     }
 
     // resolve the "move" action a player may take
     public void move(String destinationRoom) {
         // destinationRoom will be null if the user tries to move twice
         if (destinationRoom != null) {
-            if (this.canMove) {
-                boolean success = board.movePlayer(currentPlayer.getPlayerNumber(), destinationRoom);
+            if (currentPlayer.canMove()) {
+                boolean success = board.movePlayer(currentPlayer.getPlayerNum(), destinationRoom);
                 if (!success) {
                     gui.invalidMove();
                 }
                 else {
-                    this.canMove = false;
-                    gui.displayMove(currentPlayer.getPlayerNumber(), destinationRoom);
+                    this.currentPlayer.setCanMove(false);
+                    gui.displayMove(currentPlayer.getPlayerNum(), destinationRoom);
                     
                 }
             }
@@ -157,7 +179,7 @@ public class GameManager {
     }
 
     public int getCurrentPlayerNum(){
-        return getCurrentPlayer().getPlayerNumber();
+        return getCurrentPlayer().getPlayerNum();
     }
 
     public String getPlayerLocation(){
@@ -170,17 +192,25 @@ public class GameManager {
     }
 
     public void endTurn(){
-        int currentPlayerNum = currentPlayer.getPlayerNumber();
+        // if current player isn't working a role, they can move next turn
+        if (!this.currentPlayer.isWorking()) {
+            this.currentPlayer.setCanMove(true);
+        }
+        // set current player to next player
+        int currentPlayerNum = currentPlayer.getPlayerNum();
         this.currentPlayer = this.players[currentPlayerNum % this.players.length];
-        this.canMove = true;
     }
 
     public void endGame(){
         System.exit(1);
     }
 
-    public boolean canMove() {
-        return this.canMove;
+    public boolean canCurrentPlayerMove() {
+        return this.currentPlayer.canMove();
+    }
+
+    public boolean isCurrentPlayerWorking() {
+        return this.currentPlayer.isWorking();
     }
 
     public String[][] getRoomRoleInfo(String room) {

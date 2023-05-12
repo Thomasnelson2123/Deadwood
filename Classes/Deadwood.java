@@ -9,7 +9,7 @@ public class Deadwood{
     static Scene[] scenes;
     public static void main(String[] args) throws ParserConfigurationException, Exception {
         
-        Random rand = new Random(2);
+        Random rand = new Random(3);
         // get number of players
         if (args.length!= 1) {
             System.out.println("Program requires one argument (number of players)");
