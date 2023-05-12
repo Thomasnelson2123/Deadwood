@@ -34,7 +34,7 @@ public class Deadwood{
         Bank bank = new Bank();
         Board board = new Board(numPlayers, rooms, scenes, rand);
         Player[] players = new Player[numPlayers];
-        GameManager manager = new GameManager(board, players, bank);
+        GameManager manager = new GameManager(board, players, bank, rand);
 
         // main gameplay loop
         manager.mainLoop();

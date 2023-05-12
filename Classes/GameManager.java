@@ -1,4 +1,9 @@
+import java.util.Random;
+
 public class GameManager {
+
+    private final Action[] ALL_ACTIONS = new Action[] 
+    {Action.Work, Action.Act, Action.Rehearse, Action.Upgrade, Action.Move};
     
     private Board board;
     private Player[] players;
@@ -9,13 +14,15 @@ public class GameManager {
     private int day;
     private int completedScenes;
     private int maxDays = 4;
-    public GameManager(Board board, Player[] players, Bank bank) {
+    private Random rand;
+    public GameManager(Board board, Player[] players, Bank bank, Random rand) {
         this.bank = bank;
         this.board = board;
         this.players = players;
         this.gui = new GUI(this);
         this.day = 0;
         this.completedScenes = 0;
+        this.rand = rand;
 
         if (players.length < 4) {
             maxDays = 3;
@@ -23,6 +30,7 @@ public class GameManager {
 
         for (int i = 0; i < players.length; i++) {
             players[i] = new Player(i + 1);
+            players[i].setAvailableActions(ALL_ACTIONS);
             if (players.length == 5) {
                 players[i].setCredits(2);           
             }
@@ -44,9 +52,10 @@ public class GameManager {
     public void mainLoop(){
         while(true) {
             // if the current player is working, they shouldn't be able to move
+            /*
             if (this.currentPlayer.isWorking()) {
                 this.currentPlayer.setCanMove(false);
-            }
+            }*/
             String[] args = gui.parseUserInput();
             // if null: user entered gui only command, manager needs not do anything
             if (args != null) {
@@ -67,10 +76,10 @@ public class GameManager {
                 rehearse();
                 break;
             case "work":
-                takeRole(args[1]);
+                takeRole(args[1], this.currentPlayer);
                 break;
             case "move":
-                move(args[1]);
+                move(args[1], this.currentPlayer);
                 break;
             case "upgrade":
                 upgradeRank(args[1], args[2]);
@@ -91,6 +100,9 @@ public class GameManager {
 
     // resolve the "act" action a player may take
     public void act(){
+        // check if they can even act rn
+        //if player.actionstaken = none && has role
+
 
     }
 
@@ -102,11 +114,15 @@ public class GameManager {
     }
 
     // resolve the "take role" action a player may take
-    public void takeRole(String role){
+    public void takeRole(String role, Player player){
         // get room player is in
-        String playerRoom = board.getPlayerRoom(currentPlayer.getPlayerNum());
+        String playerRoom = board.getPlayerRoom(player.getPlayerNum());
+        // player is already working a role, cannot take another
+        if (player.isWorking()) {
+            this.gui.alreadyWorking();
+        }
         // role isn't in same room as player, they can't take that role
-        if (!board.isRoleInRoom(playerRoom, role)) {
+        else if (!board.isRoleInRoom(playerRoom, role)) {
             this.gui.roleNotInRoom();
         }
         // role IS in room, but it isn't available
@@ -114,32 +130,37 @@ public class GameManager {
             this.gui.roleNotAvailable();
         }
         // role IS available, but player does not have high enough of a rank
-        else if (this.board.getRoleDifficulty(role) > this.currentPlayer.getRank()) {
+        else if (this.board.getRoleDifficulty(role) > player.getRank()) {
             this.gui.rankTooLow();
         }
-        else {
+        else{
             // at this point role is available, tell player and update things
-            this.gui.displayTakeRole(this.currentPlayer.getPlayerNum(), role);
-            this.currentPlayer.setWorking(true);
-            this.board.setPlayerRole(role, this.getCurrentPlayerNum());
+            this.gui.displayTakeRole(player.getPlayerNum(), role);
+            //this.currentPlayer.setWorking(true);
+            player.setAvailableActions(new Action[] {Action.None});
+            this.board.setPlayerRole(role, player.getPlayerNum());
+            player.setWorking(true);
         }
                
     }
 
     // resolve the "move" action a player may take
-    public void move(String destinationRoom) {
+    public void move(String destinationRoom, Player player) {
         // destinationRoom will be null if the user tries to move twice
         if (destinationRoom != null) {
-            if (currentPlayer.canMove()) {
-                boolean success = board.movePlayer(currentPlayer.getPlayerNum(), destinationRoom);
+            if (this.isActionAvailable(Action.Move, player)) {
+                boolean success = board.movePlayer(player.getPlayerNum(), destinationRoom);
                 if (!success) {
                     gui.invalidMove();
                 }
                 else {
-                    this.currentPlayer.setCanMove(false);
-                    gui.displayMove(currentPlayer.getPlayerNum(), destinationRoom);
+                    //this.currentPlayer.setCanMove(false);
+                    player.setAvailableActions(new Action[] {Action.Work, Action.Upgrade});
+                    gui.displayMove(player.getPlayerNum(), destinationRoom);
                     
                 }
+            }else{
+
             }
         }
     }
@@ -147,6 +168,7 @@ public class GameManager {
     // resolve the "upgrade rank" action a player may take
     public void upgradeRank(String targetRank, String paymentType){
         
+
         int targetRankInt = Integer.parseInt(targetRank);
         boolean isUsingMoney = true;
 
@@ -192,11 +214,16 @@ public class GameManager {
     }
 
     public void endTurn(){
-        // if current player isn't working a role, they can move next turn
-        if (!this.currentPlayer.isWorking()) {
-            this.currentPlayer.setCanMove(true);
-        }
+        // reset players abilities
         // set current player to next player
+        Action[] actions;
+        if (!this.currentPlayer.isWorking()) {
+            actions = new Action[] {Action.Work,Action.Upgrade, Action.Move};
+        }
+        else {
+            actions = new Action[] {Action.Act,Action.Rehearse};
+        }
+        this.currentPlayer.setAvailableActions(actions);
         int currentPlayerNum = currentPlayer.getPlayerNum();
         this.currentPlayer = this.players[currentPlayerNum % this.players.length];
     }
@@ -206,7 +233,7 @@ public class GameManager {
     }
 
     public boolean canCurrentPlayerMove() {
-        return this.currentPlayer.canMove();
+        return this.isActionAvailable(Action.Move, this.currentPlayer);
     }
 
     public boolean isCurrentPlayerWorking() {
@@ -227,6 +254,16 @@ public class GameManager {
 
     public int[] getShotCounterInfo(String room) {
         return this.board.getShotCounters(room);
+    }
+
+    public boolean isActionAvailable(Action action, Player player) {
+        Action[] actions = player.getAvailableActions();
+        for (Action a: actions) {
+            if (a.equals(action)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -201,6 +201,7 @@ public class Board {
 
     }
 
+    // asssign player playerNum to role
     public void setPlayerRole(String role, int playerNum){
         try {
             Role r = this.getRole(role);

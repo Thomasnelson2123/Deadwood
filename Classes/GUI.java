@@ -59,6 +59,8 @@ public class GUI {
 
         System.out.println("Current Player num: " + playerNum);
         //print player info based on "currPlayer" object? eg rank, credits, etc
+
+
         return null;
     }
 
@@ -91,13 +93,17 @@ public class GUI {
         else if (this.manager.isCurrentPlayerWorking()) {
             System.out.println("You cannot leave your role until you wrap!");
             return new String[] {"move", null};
-        }
-        // player is not working a role, so they probably already moved this turn
-        else {
-            System.out.println("You can't move more than one room in a turn!");
+        }else{
+            actionAlreadyTaken();
             return new String[] {"move", null};
         }
 
+    }
+
+    public String getDestination() {
+        System.out.println("Where would you like to move to?");
+        String destination = scanner.nextLine();
+        return destination; 
     }
 
     public String[] takeRole() {
@@ -218,7 +224,13 @@ public class GUI {
         System.out.println("Your rank is too low to take that role!");
     }
 
+    public void alreadyWorking() {
+        System.out.println("Already working a role! Cannot leave until the scene has wrapped,");
+    }
 
+    public void actionAlreadyTaken(){
+        System.out.println("Too many actions!");
+    }
 
 
 }
