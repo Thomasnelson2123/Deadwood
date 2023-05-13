@@ -75,8 +75,12 @@ public class Player {
         return availableActions;
     }
 
-    public void setAvailableActions(Action[] availableActions) {
-        this.availableActions = availableActions;
+    // public void setAvailableActions(Action[] availableActions) {
+    //     this.availableActions = availableActions;
+    // }
+
+    public void setAvailableActions(Action... actions) {
+        this.availableActions = actions;
     }
 
     

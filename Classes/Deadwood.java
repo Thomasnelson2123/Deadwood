@@ -31,7 +31,7 @@ public class Deadwood{
         // parses the XML files and initializes the rooms and scenes
         parseXML();
 
-        Bank bank = new Bank();
+        Bank bank = new Bank(rand);
         Board board = new Board(numPlayers, rooms, scenes, rand);
         Player[] players = new Player[numPlayers];
         GameManager manager = new GameManager(board, players, bank, rand);

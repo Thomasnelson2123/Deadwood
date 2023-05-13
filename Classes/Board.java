@@ -29,13 +29,6 @@ public class Board {
 
     }
 
-
-    // returns the object of a room based on its name
-    public Room nameToObject(String name) {
-        //uses hash map to get room object from name
-        return rooms.get(name);
-    }
-
     // determines if start/destination room are adjacent
     public boolean isValidMove(String start, String destination) {
         
@@ -249,5 +242,30 @@ public class Board {
         }
         return r.getDifficulty();
     }
+
+    // given a player number, returns the role info for what the player is working
+    public String[] getPlayerRoleInfo(int playerNum) {
+        Role currentRole = this.playerRoles[playerNum - 1];
+        if (currentRole == null) {
+            return null;
+        }
+        String[] roleInfo = new String[5];
+        roleInfo[0] = currentRole.getName();
+        roleInfo[1] = currentRole.getCaption();
+        roleInfo[2] = Integer.toString(currentRole.getDifficulty());
+        roleInfo[3] = Boolean.toString(currentRole.getOnCard());
+        roleInfo[4] = Boolean.toString(currentRole.getOccupied());
+        return roleInfo;
+
+    }
+
+    public void removeShotCounter(String currentRoom){
+        Room room = this.rooms.get(currentRoom);
+        room.removeShot();
+    }
+
+    // room.getRoles
+    // this.playerRoles[]
+
 
 }
