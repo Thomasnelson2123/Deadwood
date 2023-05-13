@@ -65,6 +65,7 @@ public class GUI {
     }
 
     // get current location of player
+    // BAD CODE FIX LATER
     public String[] getLocation() {
         String location = manager.getPlayerLocation();
         System.out.println("Current player is at: " + location);
@@ -230,6 +231,10 @@ public class GUI {
 
     public void actionAlreadyTaken(){
         System.out.println("Too many actions!");
+    }
+
+    public void cannotAct() {
+        System.out.println("You must be working a role before you can act!");
     }
 
 

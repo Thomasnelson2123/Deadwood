@@ -1,6 +1,16 @@
+import java.util.Random;
+import java.util.Arrays;
+//import java.util.Comparator;
+import java.util.HashMap;
 
 public class Bank {
     
+    private Random rand;
+
+    public Bank(Random rand){
+        this.rand = rand;
+    }
+
     // returns the cost of an upgrade in cash based on the rank being purchased
     public int getUpgradeCostMoney(int targetRank) throws Exception{
         if (targetRank > 6 || targetRank < 2) {
@@ -62,8 +72,44 @@ public class Bank {
         return isSuccess;
     }
 
-    // pays players for completing a scene based on their roles + scene budget
-    public void payPlayers(Player[] players, int budget, int[] roles, boolean[] rolesOnCard){
+    public void actingReward(boolean success, boolean isOnCard, Player currentPlayer){
+        int currentCredits = currentPlayer.getCredits();
+        int currentMoney = currentPlayer.getMoney();
+        
+        if(isOnCard){
+            if(success){
+                currentPlayer.setCredits(currentCredits+2);
+            }
+            else{
+                //you get nothing! you lose! good day sir!
+            }
+        }
+        else{
+            if(success){
+                currentPlayer.setCredits(currentCredits+1);
+                currentPlayer.setMoney(currentMoney+1);
+            }
+            else {
+                currentPlayer.setMoney(currentMoney+1);
+            }
+        }
+    }
 
+    // pays players for completing a scene based on their roles + scene budget
+    public void payPlayers(HashMap<Integer, Player> onCardRoles, HashMap<Integer, Player> offCardRoles, int budget){
+        int[] rolls = new int[budget];
+        
+        //get rolls for paying on card
+        for(int i = 0; i < budget; i++){
+            rolls[i] = rand.nextInt(0,7);
+        }
+        //sort it
+        Arrays.sort(rolls);
+
+        //int j = 0;
+        //iterate through it backwards, paying players respectively
+        for(int i = rolls.length - 1; i >= 0; i--){
+            
+        }
     }
 }

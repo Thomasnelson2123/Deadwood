@@ -47,6 +47,16 @@ public class Room {
         return total;
     }
 
+    public void removeShot(){
+        for(ShotCounter shot: this.shots){
+            if(shot.hasShot()){
+                shot.setHasShot(false);
+                break;
+            }
+        }
+
+    }
+
      //#endregion
 
     // for debug
@@ -68,6 +78,5 @@ public class Room {
     public boolean hasScene() {
         return this.hasScene;
     }
-
 
 }

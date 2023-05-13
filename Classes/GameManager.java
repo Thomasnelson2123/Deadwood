@@ -1,4 +1,8 @@
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+
+import javax.management.relation.RoleNotFoundException;
 
 public class GameManager {
 
@@ -70,7 +74,7 @@ public class GameManager {
         
         switch(args[0]){
             case "act":
-                act();
+                act(this.currentPlayer);
                 break;
             case "rehearse":
                 rehearse();
@@ -99,11 +103,38 @@ public class GameManager {
     }
 
     // resolve the "act" action a player may take
-    public void act(){
+    public void act(Player player){
         // check if they can even act rn
         //if player.actionstaken = none && has role
+        if (isActionAvailable(Action.Act, player)) {
+            player.setAvailableActions(Action.None);
+            int diceRoll = this.rand.nextInt(1, 7) + player.getRehearsalChipCount();
+            String[] sceneInfo = this.board.getSceneInfo(getPlayerLocation(player.getPlayerNum()));
+            int budget = Integer.parseInt(sceneInfo[2]);
+            String[] playerRoleInfo = this.board.getPlayerRoleInfo(player.getPlayerNum());
+            
+            //give player credits/money
+            boolean isOnCard = Boolean.parseBoolean(playerRoleInfo[3]);
+            boolean actSuccess = diceRoll >= budget;
+            String roomName = getPlayerLocation(player.getPlayerNum());
+            // reward player based on whether they succeeded and whether they were on the card
+            bank.actingReward(actSuccess, isOnCard, player);
 
+            //remove shot counter
+            if(actSuccess){
+                board.removeShotCounter(roomName);
+            }
 
+            //if shot counter = 0, reward all players working on scene
+            if(board.getShotCounters(roomName)[0] == 0){
+                this.sceneWrap(roomName);
+            }
+
+        }
+        else {
+            this.gui.cannotAct();
+        }
+        
     }
 
     // resolve the "rehearse" action a player may take
@@ -192,8 +223,46 @@ public class GameManager {
     }
 
     // pay players for completing a scene
-    public void payPlayers(){
-        this.bank.payPlayers(players, completedScenes, null, null);
+    public void sceneWrap(String room){
+        // can get role for every player
+        // can then check if role is in the room being completed
+        // pass into bank only the players in the room, and neccessary role info
+
+        String[][] sceneRoleInfo = this.board.getSceneRoles(room);
+
+        HashMap<Integer, Player> onCardRoles = new HashMap<>();
+        HashMap<Integer, Player> offCardRoles = new HashMap<>();
+        int budget = Integer.parseInt(this.board.getSceneInfo(room)[2]);
+        for (String[] roleInfo: sceneRoleInfo) {
+            Player p = null;
+            for (Player player: this.players) {
+                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
+                // player working role on card
+                if (playerRoleName.equals(roleInfo[0])) {
+                    p = player;
+                    break;
+                }
+            }
+
+            int roleDifficulty = Integer.parseInt(roleInfo[2]);
+            onCardRoles.put(roleDifficulty, p);
+        }
+        String[][] roomRoleInfo = this.board.getRoomRoles(room);
+        for (String[] roleInfo: roomRoleInfo) {
+            Player p = null;
+            for (Player player: this.players) {
+                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
+                // player working role on card
+                if (playerRoleName.equals(roleInfo[0])) {
+                    p = player;
+                    break;
+                }
+            }
+
+            int roleDifficulty = Integer.parseInt(roleInfo[2]);
+            offCardRoles.put(roleDifficulty, p);
+        }
+        this.bank.payPlayers(onCardRoles, offCardRoles, budget);
     }
 
     public Player getCurrentPlayer() {
@@ -204,8 +273,8 @@ public class GameManager {
         return getCurrentPlayer().getPlayerNum();
     }
 
-    public String getPlayerLocation(){
-        return board.getPlayerRoom(this.getCurrentPlayerNum());
+    public String getPlayerLocation(int playerNum){
+        return board.getPlayerRoom(playerNum);
     }
 
     public String[] getPlayerRoomNeighbors() {
