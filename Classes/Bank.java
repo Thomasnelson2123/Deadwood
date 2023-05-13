@@ -1,5 +1,7 @@
 import java.util.Random;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 //import java.util.Comparator;
 import java.util.HashMap;
 
@@ -96,20 +98,55 @@ public class Bank {
     }
 
     // pays players for completing a scene based on their roles + scene budget
-    public void payPlayers(HashMap<Integer, Player> onCardRoles, HashMap<Integer, Player> offCardRoles, int budget){
+    public void payPlayersOnCard(int budget, int[] onCardDifficulties, ArrayList<Player> playerList, ArrayList<Integer> playerRoleDifficulties){
         int[] rolls = new int[budget];
         
-        //get rolls for paying on card
+        //get rolls for payment on card
         for(int i = 0; i < budget; i++){
             rolls[i] = rand.nextInt(0,7);
         }
-        //sort it
+        //sort it, reverse it
         Arrays.sort(rolls);
+        Collections.reverse(Arrays.asList(rolls));
 
-        //int j = 0;
-        //iterate through it backwards, paying players respectively
-        for(int i = rolls.length - 1; i >= 0; i--){
-            
+        //role difficulties is an array of int
+        //representing the difficulty of each role, in descending order
+        //eg if a scene has 3 roles, requiring rank 2, 4, and 5 respectively
+        //the array would be [5, 4, 2]
+        //
+        //this has already been sorted when it was passed in, we dont need to sort it here
+
+        //iterate through rolls and give each roll to the player who deserves it
+        int totalOnCardRoles = onCardDifficulties.length;
+        for(int i = 0; i< rolls.length; i++){
+            //for each player,
+            //if roleDifficultys[i % total number of on card roles] == this player.roledifficulty, pay that player rolls[i] money
+            for(int j = 0; j < playerRoleDifficulties.size(); j++){
+                int currentRoleDifficulty = (int) playerRoleDifficulties.get(j);
+                if(onCardDifficulties[i % totalOnCardRoles] == currentRoleDifficulty){
+                    //pay player j
+                    Player playerToPay = (Player) playerList.get(j);
+                    int playerMoney = playerToPay.getMoney();
+
+                    playerToPay.setMoney(playerMoney + rolls[i]);
+
+                    //break out of this loop - there shouldnt be 2 players with the same difficulty role
+                    break;
+                }
+            }
+        }
+    }
+
+    public void payPlayersOffCard(boolean anyPlayersOnCard, ArrayList<Player> playerList, ArrayList<Integer> playerRoleDifficulties){
+        //extras dont get a bonus if nobody was working on the card
+        if(anyPlayersOnCard){
+            //pay each player as much money as their role's difficulty
+            for(int i = 0; i < playerList.size(); i++){
+                Player p = playerList.get(i);
+                int mony = p.getMoney();
+                int playerRoleDifficulty = (int)playerRoleDifficulties.get(i);
+                p.setMoney(mony + playerRoleDifficulty);
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -128,6 +130,7 @@ public class GameManager {
             //if shot counter = 0, reward all players working on scene
             if(board.getShotCounters(roomName)[0] == 0){
                 this.sceneWrap(roomName);
+                gui.sceneWrap();
             }
 
         }
@@ -228,6 +231,7 @@ public class GameManager {
         // can then check if role is in the room being completed
         // pass into bank only the players in the room, and neccessary role info
 
+        /* 
         String[][] sceneRoleInfo = this.board.getSceneRoles(room);
 
         HashMap<Integer, Player> onCardRoles = new HashMap<>();
@@ -263,6 +267,78 @@ public class GameManager {
             offCardRoles.put(roleDifficulty, p);
         }
         this.bank.payPlayers(onCardRoles, offCardRoles, budget);
+        */
+
+        String[][] sceneRoleInfo = this.board.getSceneRoles(room);
+        int budget = Integer.parseInt(this.board.getSceneInfo(room)[2]);
+
+        //sorted array of difficulties of each role in scene, in descending order
+        //eg if a scene has 3 roles, which require rank 1, 3, and 5 to take respectively
+        //this array would contain [5, 3, 1]
+        int[] onCardDifficulties = new int[sceneRoleInfo.length];
+        for(int i = 0; i < onCardDifficulties.length; i++){
+            onCardDifficulties[i] = Integer.parseInt(sceneRoleInfo[i][2]);
+        }
+        Arrays.sort(onCardDifficulties);
+        Collections.reverse(Arrays.asList(onCardDifficulties));
+
+        //these dont need to be sorted, but they need to be tied in order to each other
+        //eg if we have player A has a role of 5 difficulty, and player B has a role of 3 difficulty, we want this:
+        //[player A, player B] and [5, 3]
+        //[player B, player A] and [3, 5]
+        //
+        //so that way if we do playerlist[0] and playerroledifficulties[0] they are for the same player
+
+        ArrayList<Player> playerOnCardList = new ArrayList<Player>();
+        ArrayList<Integer> playerRoleDifficulties = new ArrayList<Integer>();
+
+        for (String[] roleInfo: sceneRoleInfo) {
+            Player p = null;
+            for (Player player: this.players) {
+                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
+                // player working role on card
+                if (playerRoleName.equals(roleInfo[0])) {
+                    p = player;
+                    break;
+                }
+            }
+
+            if(p != null){
+                playerOnCardList.add(p);
+                int roleDifficulty = Integer.parseInt(roleInfo[2]);
+                playerRoleDifficulties.add(roleDifficulty);
+            }
+        }
+
+        this.bank.payPlayersOnCard(budget,onCardDifficulties,playerOnCardList,playerRoleDifficulties);
+
+        boolean isPlayersOnCard = true;
+        if(playerOnCardList.size() == 0){
+            isPlayersOnCard = false;
+        }
+
+        ArrayList<Player> playerOffCardList = new ArrayList<Player>();
+        ArrayList<Integer> offCardDifficulties = new ArrayList<Integer>();
+
+        String[][] roomRoleInfo = this.board.getRoomRoles(room);
+        for (String[] roleInfo: roomRoleInfo) {
+            Player p = null;
+            for (Player player: this.players) {
+                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
+                // player working role on card
+                if (playerRoleName.equals(roleInfo[0])) {
+                    p = player;
+                    break;
+                }
+            }
+
+            playerOffCardList.add(p);
+            int roleDifficulty = Integer.parseInt(roleInfo[2]);
+            offCardDifficulties.add(roleDifficulty);
+        }
+
+        this.bank.payPlayersOffCard(isPlayersOnCard, playerOffCardList, offCardDifficulties);
+
     }
 
     public Player getCurrentPlayer() {

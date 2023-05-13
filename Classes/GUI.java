@@ -67,7 +67,7 @@ public class GUI {
     // get current location of player
     // BAD CODE FIX LATER
     public String[] getLocation() {
-        String location = manager.getPlayerLocation();
+        String location = manager.getPlayerLocation(manager.getCurrentPlayerNum());
         System.out.println("Current player is at: " + location);
         System.out.print("Nearby rooms are: ");
         displayNeighbors();
@@ -235,6 +235,10 @@ public class GUI {
 
     public void cannotAct() {
         System.out.println("You must be working a role before you can act!");
+    }
+
+    public void sceneWrap(){
+        System.out.println("That's a wrap! Scene completed.");
     }
 
 
