@@ -109,7 +109,7 @@ public class ParseXML {
                         takeDims = getArea(a);
                     }
                 }
-                ShotCounter take = new ShotCounter(takeNum, takeDims, false);
+                ShotCounter take = new ShotCounter(takeNum, takeDims, true);
                 shots.add(take); 
             } 
         }

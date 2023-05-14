@@ -51,10 +51,16 @@ public class Room {
         for(ShotCounter shot: this.shots){
             if(shot.hasShot()){
                 shot.setHasShot(false);
-                break;
+                return;
             }
         }
 
+    }
+
+    public void resetShotCounters() {
+        for (ShotCounter shot: this.shots) {
+            shot.setHasShot(true);
+        }
     }
 
      //#endregion
@@ -75,7 +81,12 @@ public class Room {
         this.sceneCard = sceneCard;
     }
 
-    public boolean hasScene() {
+    public void removeSceneCard() {
+        this.sceneCard = null;
+        
+    }
+
+    public boolean canHaveScene() {
         return this.hasScene;
     }
 

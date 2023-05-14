@@ -122,10 +122,10 @@ public class Bank {
             //for each player,
             //if roleDifficultys[i % total number of on card roles] == this player.roledifficulty, pay that player rolls[i] money
             for(int j = 0; j < playerRoleDifficulties.size(); j++){
-                int currentRoleDifficulty = (int) playerRoleDifficulties.get(j);
+                int currentRoleDifficulty = playerRoleDifficulties.get(j);
                 if(onCardDifficulties[i % totalOnCardRoles] == currentRoleDifficulty){
                     //pay player j
-                    Player playerToPay = (Player) playerList.get(j);
+                    Player playerToPay = playerList.get(j);
                     int playerMoney = playerToPay.getMoney();
 
                     playerToPay.setMoney(playerMoney + rolls[i]);

@@ -51,6 +51,10 @@ public class Board {
         return this.rooms.get(room.toLowerCase());
     }
 
+    private Scene getScene(String scene) {
+        return this.scenes.get(scene.toLowerCase());
+    }
+
     // resets board
     public void resetBoard() throws Exception {
         // move players to trailer
@@ -75,7 +79,10 @@ public class Board {
         boolean isValid = isValidMove(playerLocations[playerNum - 1],destination);
         if(isValid){
             playerLocations[playerNum - 1] = destination;
-            getRoom(destination).getSceneCard().flipCard();
+            Scene s = getRoom(destination).getSceneCard();
+            if (s != null) {
+                getRoom(destination).getSceneCard().flipCard();
+            }
         }
 
         return isValid;
@@ -93,9 +100,11 @@ public class Board {
 
     public String[][] getRoomRoles(String room) {
         Room r = getRoom(room);
-        if (!r.hasScene()) {
+        Scene s = r.getSceneCard();
+        if (!r.canHaveScene() || s == null) {
             return null;
         }
+        
         Role[] roles = r.getRoles();
         return getRoleInfo(roles);
 
@@ -103,25 +112,26 @@ public class Board {
 
     public String[][] getSceneRoles(String room) {
         Room r = getRoom(room);
-        if (!r.hasScene()) {
+        Scene s = r.getSceneCard();
+        if (!r.canHaveScene() || s == null) {
             return null;
         }
-        Scene s = r.getSceneCard();
+
         return getRoleInfo(s.getRoles());
     }
 
     public String[] getSceneInfo(String room) {
         Room r = getRoom(room);
-        if (!r.hasScene()) {
+        Scene s = r.getSceneCard();
+        if (!r.canHaveScene() || s == null) {
             return null;
         }
-        Scene s = r.getSceneCard();
         String[] sceneInfo = new String[5];
         sceneInfo[0] = s.getName();
         sceneInfo[1] = s.getCaption();
         sceneInfo[2] = Integer.toString(s.getBudget());
         sceneInfo[3] = Integer.toString(s.getSceneNumber());
-        sceneInfo[4] = Boolean.toString(s.isFlipped());
+        sceneInfo[4] = Boolean.toString(s.isFacingUp());
         return sceneInfo;
 
 
@@ -143,7 +153,7 @@ public class Board {
 
     public int[] getShotCounters(String room) {
         Room r = this.getRoom(room);
-        if (!r.hasScene()) {
+        if (!r.canHaveScene()) {
             return null;
         }
         return new int[] {r.getShotsRemaining(), r.getTotalShots()};
@@ -192,6 +202,10 @@ public class Board {
         }
         return r.isRoleAvailable();
 
+    }
+
+    public void removePlayerRole(int playerNum){
+        this.playerRoles[playerNum - 1] = null;
     }
 
     // asssign player playerNum to role
@@ -260,9 +274,15 @@ public class Board {
     }
 
     public void removeShotCounter(String currentRoom){
-        Room room = this.rooms.get(currentRoom);
+        Room room = this.getRoom(currentRoom);
         room.removeShot();
     }
+
+    public void removeCard(String room) {
+        Room r = getRoom(room);
+        r.removeSceneCard();
+    }
+
 
     // room.getRoles
     // this.playerRoles[]

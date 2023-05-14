@@ -6,9 +6,8 @@ public class GUI {
     private GameManager manager;
     //ArrayList<String> roomList = new ArrayList<String>();
     public GUI(GameManager manager) {
-        this.manager = manager;
         scanner = new Scanner(System.in);
-        
+        this.manager = manager;
     }
 
     // lets player type the command they want to execute
@@ -52,16 +51,18 @@ public class GUI {
     }
 
 
-    // displays to user the active player
+
     public String[] activePlayer() {
-        //Player currPlayer = manager.getCurrentPlayer();
-        int playerNum = manager.getCurrentPlayerNum();
+        return new String[] {"who"};
+    }
+
+
+    // displays to user the active player
+    public void displayCurrentPlayerInfo(int playerNum, int rank, int money, int credits) {
 
         System.out.println("Current Player num: " + playerNum);
-        //print player info based on "currPlayer" object? eg rank, credits, etc
-
-
-        return null;
+        System.out.println("Rank of " + rank);
+        System.out.println("Player has " + money + " dollars and " + credits + " credits");
     }
 
     // get current location of player
@@ -204,6 +205,9 @@ public class GUI {
         if(shots != null) {
             System.out.println(shots[0] + " of " + shots[1] + " shots remaining");
             System.out.println();
+            if (shots[0] == 0) {
+                System.out.println("Scene has wrapped!");
+            }
         }
 
     }
@@ -234,11 +238,23 @@ public class GUI {
     }
 
     public void cannotAct() {
-        System.out.println("You must be working a role before you can act!");
+        System.out.println("You can't act right now!");
+    }
+
+    public void actNotification(boolean actSuccess){
+        if(actSuccess){
+            System.out.println("Act successful!");
+        }else{
+            System.out.println("Act failed.");
+        }
     }
 
     public void sceneWrap(){
         System.out.println("That's a wrap! Scene completed.");
+    }
+
+    public void noShotCounters(){
+        System.out.println("You cannot join this scene as it has already been completed!");
     }
 
 

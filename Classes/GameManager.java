@@ -76,7 +76,7 @@ public class GameManager {
         
         switch(args[0]){
             case "act":
-                act(this.currentPlayer);
+                act(this.currentPlayer, getPlayerLocation(this.currentPlayer.getPlayerNum()));
                 break;
             case "rehearse":
                 rehearse();
@@ -96,6 +96,9 @@ public class GameManager {
             case "terminate":
                 endGame();
                 break;
+            case "who":
+                displayPlayerStats(this.currentPlayer);
+                break;
         }
     }
     
@@ -104,11 +107,16 @@ public class GameManager {
 
     }
 
+    public void displayPlayerStats(Player player) {  
+        this.gui.displayCurrentPlayerInfo(player.getPlayerNum(), player.getRank(), player.getMoney(), player.getCredits());
+    }
+
     // resolve the "act" action a player may take
-    public void act(Player player){
+    public void act(Player player, String roomName){
         // check if they can even act rn
         //if player.actionstaken = none && has role
-        if (isActionAvailable(Action.Act, player)) {
+        int shotsAvailable = this.board.getShotCounters(roomName)[0];
+        if (isActionAvailable(Action.Act, player) && shotsAvailable > 0) {
             player.setAvailableActions(Action.None);
             int diceRoll = this.rand.nextInt(1, 7) + player.getRehearsalChipCount();
             String[] sceneInfo = this.board.getSceneInfo(getPlayerLocation(player.getPlayerNum()));
@@ -118,9 +126,11 @@ public class GameManager {
             //give player credits/money
             boolean isOnCard = Boolean.parseBoolean(playerRoleInfo[3]);
             boolean actSuccess = diceRoll >= budget;
-            String roomName = getPlayerLocation(player.getPlayerNum());
             // reward player based on whether they succeeded and whether they were on the card
             bank.actingReward(actSuccess, isOnCard, player);
+
+            //notify gui about whether or not acting was a success
+            gui.actNotification(actSuccess);
 
             //remove shot counter
             if(actSuccess){
@@ -129,8 +139,20 @@ public class GameManager {
 
             //if shot counter = 0, reward all players working on scene
             if(board.getShotCounters(roomName)[0] == 0){
+                //pays players, removes their roles
                 this.sceneWrap(roomName);
                 gui.sceneWrap();
+
+                // remove scene card
+                this.board.removeCard(roomName);
+
+
+
+                // make it so you cannot take a role in this room
+                // this is handled in takerole - you cant take a role in a room
+                // if that room's shot counters = 0
+                
+
             }
 
         }
@@ -154,6 +176,10 @@ public class GameManager {
         // player is already working a role, cannot take another
         if (player.isWorking()) {
             this.gui.alreadyWorking();
+        }
+        //if shot counters = 0, this scene has already been completed
+        else if(board.getShotCounters(playerRoom)[0] == 0){
+            this.gui.noShotCounters();
         }
         // role isn't in same room as player, they can't take that role
         else if (!board.isRoleInRoom(playerRoom, role)) {
@@ -231,44 +257,6 @@ public class GameManager {
         // can then check if role is in the room being completed
         // pass into bank only the players in the room, and neccessary role info
 
-        /* 
-        String[][] sceneRoleInfo = this.board.getSceneRoles(room);
-
-        HashMap<Integer, Player> onCardRoles = new HashMap<>();
-        HashMap<Integer, Player> offCardRoles = new HashMap<>();
-        int budget = Integer.parseInt(this.board.getSceneInfo(room)[2]);
-        for (String[] roleInfo: sceneRoleInfo) {
-            Player p = null;
-            for (Player player: this.players) {
-                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
-                // player working role on card
-                if (playerRoleName.equals(roleInfo[0])) {
-                    p = player;
-                    break;
-                }
-            }
-
-            int roleDifficulty = Integer.parseInt(roleInfo[2]);
-            onCardRoles.put(roleDifficulty, p);
-        }
-        String[][] roomRoleInfo = this.board.getRoomRoles(room);
-        for (String[] roleInfo: roomRoleInfo) {
-            Player p = null;
-            for (Player player: this.players) {
-                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
-                // player working role on card
-                if (playerRoleName.equals(roleInfo[0])) {
-                    p = player;
-                    break;
-                }
-            }
-
-            int roleDifficulty = Integer.parseInt(roleInfo[2]);
-            offCardRoles.put(roleDifficulty, p);
-        }
-        this.bank.payPlayers(onCardRoles, offCardRoles, budget);
-        */
-
         String[][] sceneRoleInfo = this.board.getSceneRoles(room);
         int budget = Integer.parseInt(this.board.getSceneInfo(room)[2]);
 
@@ -295,7 +283,11 @@ public class GameManager {
         for (String[] roleInfo: sceneRoleInfo) {
             Player p = null;
             for (Player player: this.players) {
-                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
+                String[] playerRoleInfo = this.board.getPlayerRoleInfo(player.getPlayerNum());
+                if (playerRoleInfo == null) {
+                    continue;
+                }
+                String playerRoleName = playerRoleInfo[0];
                 // player working role on card
                 if (playerRoleName.equals(roleInfo[0])) {
                     p = player;
@@ -324,7 +316,11 @@ public class GameManager {
         for (String[] roleInfo: roomRoleInfo) {
             Player p = null;
             for (Player player: this.players) {
-                String playerRoleName = this.board.getPlayerRoleInfo(player.getPlayerNum())[0];
+                String[] playerRoleInfo = this.board.getPlayerRoleInfo(player.getPlayerNum());
+                if(playerRoleInfo == null){
+                    continue;
+                }
+                String playerRoleName = playerRoleInfo[0];
                 // player working role on card
                 if (playerRoleName.equals(roleInfo[0])) {
                     p = player;
@@ -332,13 +328,35 @@ public class GameManager {
                 }
             }
 
-            playerOffCardList.add(p);
-            int roleDifficulty = Integer.parseInt(roleInfo[2]);
-            offCardDifficulties.add(roleDifficulty);
+            if(p != null){
+                playerOffCardList.add(p);
+                int roleDifficulty = Integer.parseInt(roleInfo[2]);
+                offCardDifficulties.add(roleDifficulty);
+            }
         }
 
         this.bank.payPlayersOffCard(isPlayersOnCard, playerOffCardList, offCardDifficulties);
 
+        removePlayerRoles(playerOnCardList, playerOffCardList);
+
+    }
+
+    public void removePlayerRoles (ArrayList<Player> playersOnCard, ArrayList<Player> playersOffCard){
+        //iterate through players on card and set their roles to null
+        for(int i = 0; i < playersOnCard.size(); i++){
+            Player player = playersOnCard.get(i);
+            int currentPlayerNum = player.getPlayerNum();
+            board.removePlayerRole(currentPlayerNum);
+            player.setWorking(false);
+        }
+
+        //iterate through players off card and set their roles to null
+        for(int i = 0; i < playersOffCard.size(); i++){
+            Player player = playersOffCard.get(i);
+            int currentPlayerNum = player.getPlayerNum();
+            board.removePlayerRole(currentPlayerNum);
+            player.setWorking(false);
+        }
     }
 
     public Player getCurrentPlayer() {
