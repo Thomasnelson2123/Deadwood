@@ -1,10 +1,8 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Random;
 
-import javax.management.relation.RoleNotFoundException;
 
 public class GameManager {
 
@@ -36,7 +34,7 @@ public class GameManager {
 
         for (int i = 0; i < players.length; i++) {
             players[i] = new Player(i + 1);
-            players[i].setAvailableActions(ALL_ACTIONS);
+            players[i].setAvailableActions(new Action[] {Action.Work, Action.Move, Action.Upgrade});
             if (players.length == 5) {
                 players[i].setCredits(2);           
             }
@@ -79,7 +77,7 @@ public class GameManager {
                 act(this.currentPlayer, getPlayerLocation(this.currentPlayer.getPlayerNum()));
                 break;
             case "rehearse":
-                rehearse();
+                rehearse(this.currentPlayer);
                 break;
             case "work":
                 takeRole(args[1], this.currentPlayer);
@@ -146,8 +144,6 @@ public class GameManager {
                 // remove scene card
                 this.board.removeCard(roomName);
 
-
-
                 // make it so you cannot take a role in this room
                 // this is handled in takerole - you cant take a role in a room
                 // if that room's shot counters = 0
@@ -163,9 +159,41 @@ public class GameManager {
     }
 
     // resolve the "rehearse" action a player may take
-    public void rehearse(){
+    public void rehearse(Player player){
         
-        
+        //check if the player is able to rehearse
+        if (this.isActionAvailable(Action.Rehearse, player)) {
+
+            //do not let player rehearse if they dont have a role
+            String[] playerRoleInfo = this.board.getPlayerRoleInfo(player.getPlayerNum());
+            if(playerRoleInfo != null){
+                //do not let player rehearse if they have the max number of rehearsal chips
+                String[] sceneInfo = this.board.getSceneInfo(getPlayerLocation(player.getPlayerNum()));
+                int budget = Integer.parseInt(sceneInfo[2]);
+                int playerRehearsalChips = player.getRehearsalChipCount();
+
+                //its -1 because the player will, at minimum, roll a 1
+                //meaning if say budget = 6 and the player has 5 rehearsal chips,
+                //they shouldnt be able to get any more because
+                //roll of 1 + 5 chips = 6
+                //gaurunteed success
+                if(playerRehearsalChips < budget-1){
+                    //success
+                    player.addRehearsalChip();
+                    gui.addRehearsalChip(player.getRehearsalChipCount());
+                    player.setAvailableActions(new Action[] {Action.None});
+                }else{
+                    gui.tooManyChips();
+                }
+            }
+
+        }
+        else if (player.isWorking()){
+            gui.actionAlreadyTaken();
+        }  
+        else {
+            gui.chipsButNoRole();
+        }
         //int max_rehearsal_chips = difficulty - 1
     }
 
@@ -337,17 +365,19 @@ public class GameManager {
 
         this.bank.payPlayersOffCard(isPlayersOnCard, playerOffCardList, offCardDifficulties);
 
-        removePlayerRoles(playerOnCardList, playerOffCardList);
+        //remove all player's roles and rehearsal chips who were working on this scene
+        removePlayerRolesAndChips(playerOnCardList, playerOffCardList);
 
     }
 
-    public void removePlayerRoles (ArrayList<Player> playersOnCard, ArrayList<Player> playersOffCard){
+    public void removePlayerRolesAndChips (ArrayList<Player> playersOnCard, ArrayList<Player> playersOffCard){
         //iterate through players on card and set their roles to null
         for(int i = 0; i < playersOnCard.size(); i++){
             Player player = playersOnCard.get(i);
             int currentPlayerNum = player.getPlayerNum();
             board.removePlayerRole(currentPlayerNum);
             player.setWorking(false);
+            player.resetRehearsalChipCount();
         }
 
         //iterate through players off card and set their roles to null
@@ -356,6 +386,7 @@ public class GameManager {
             int currentPlayerNum = player.getPlayerNum();
             board.removePlayerRole(currentPlayerNum);
             player.setWorking(false);
+            player.resetRehearsalChipCount();
         }
     }
 
