@@ -86,7 +86,13 @@ public class GameManager {
                 move(args[1], this.currentPlayer);
                 break;
             case "upgrade":
-                upgradeRank(args[1], args[2]);
+                if (this.board.playerInOffice(this.currentPlayer.getPlayerNum())) {
+                    String[] upgradeInfo = this.gui.promptForUpgrade();
+                    upgradeRank(upgradeInfo[0], upgradeInfo[1], this.currentPlayer);
+                }
+                else {
+                    this.gui.notInOffice();
+                }
                 break;
             case "end": //end turn
                 endTurn();
@@ -254,27 +260,41 @@ public class GameManager {
     }
 
     // resolve the "upgrade rank" action a player may take
-    public void upgradeRank(String targetRank, String paymentType){
+    public void upgradeRank(String targetRank, String paymentType, Player player){
         
-
-        int targetRankInt = Integer.parseInt(targetRank);
+        int targetRankInt;
+        try {
+            targetRankInt = Integer.parseInt(targetRank.trim());
+        } catch (Exception e) {
+            //System.out.println("cant parse int");
+            gui.invalidUpgrade(true);
+            return;
+        }
+        if (targetRankInt > 6 || targetRankInt < player.getRank()) {
+            gui.invalidUpgrade(false);
+            return;
+        }
+        
         boolean isUsingMoney = true;
 
         boolean success = false;
         boolean badInput = false;
 
-        if(paymentType.toLowerCase(null) == "money"){
+        if(paymentType.equalsIgnoreCase("money")){
             isUsingMoney = true;
-            success = this.bank.upgradePlayer(currentPlayer,targetRankInt,isUsingMoney);
-        }else if(paymentType.toLowerCase(null) == "credits"){
+            success = this.bank.upgradePlayer(player,targetRankInt,isUsingMoney);
+        }else if(paymentType.equalsIgnoreCase( "credits")){
             isUsingMoney = false;
-            success = this.bank.upgradePlayer(currentPlayer,targetRankInt,isUsingMoney);
+            success = this.bank.upgradePlayer(player,targetRankInt,isUsingMoney);
         }else{
+            //System.out.println("it isnt moni or credit");
             badInput = true;
         }
 
         if(!success){
             gui.invalidUpgrade(badInput);
+        }else{
+            gui.upgradeSuccess();
         }
         
     }

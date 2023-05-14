@@ -283,6 +283,10 @@ public class Board {
         r.removeSceneCard();
     }
 
+    public boolean playerInOffice(int playerNum) {
+        return this.playerLocations[playerNum - 1].equalsIgnoreCase("office");
+    }
+
 
     // room.getRoles
     // this.playerRoles[]

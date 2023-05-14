@@ -125,14 +125,21 @@ public class GUI {
         return new String[] {"end"};
     }
 
+
+    public void notInOffice() {
+        System.out.println("You must be in the office to upgrade!");
+    }
     public String[] upgrade() {
+        return new String[] {"upgrade"};
+    }
+    public String[] promptForUpgrade() {
         System.out.println("Which rank would you like to upgrade to?");
         String targetRank = scanner.nextLine();
 
         System.out.println("Would you like to use [money] or [credits]?");
         String paymentType = scanner.nextLine();
         
-        return new String[] {"upgrade", targetRank, paymentType};
+        return new String[] {targetRank, paymentType};
     }
 
     
@@ -157,7 +164,7 @@ public class GUI {
     public void invalidUpgrade(boolean badInput){
         System.out.println("Upgrade failed!");
         if(badInput){
-            System.out.println("Payment type not detected. You may only pay with [money] or [credits].");
+            System.out.println("Incorrect input. For rank, input a number 2-6, and for payment, type \"money\" or \"credits\"");
         }else{
             System.out.println("You do not possess enough resources to upgrade.");
         }
@@ -257,5 +264,20 @@ public class GUI {
         System.out.println("You cannot join this scene as it has already been completed!");
     }
 
+    public void addRehearsalChip(int numChips){
+        System.out.println("You have gained a rehearsal chip!");
+        System.out.println("Your chips: "+numChips);
+    }
 
+    public void tooManyChips(){
+        System.out.println("You already have the max amount of rehearsal chips!");
+    }
+
+    public void chipsButNoRole(){
+        System.out.println("You cannot rehearse if you don't have a role!");
+    }
+
+    public void upgradeSuccess(){
+        System.out.println("Upgrade successful!");
+    }
 }

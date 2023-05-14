@@ -19,7 +19,7 @@ public class Bank {
             throw new Exception("invalid rank");
         }
         int[] costs = new int[] {4, 10, 18, 28, 40};
-        return costs[targetRank - 1];
+        return costs[targetRank - 2];
     }
 
     // returns the cost of an upgrade in credits based on the rank being purchased
