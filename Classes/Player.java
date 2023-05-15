@@ -20,7 +20,7 @@ public class Player {
 
     public Player(int playerNumber) {
         this.playerNumber = playerNumber;
-        this.rank = 1;
+        this.rank = 4;
         this.money = 0;
         this.credits = 0;
         this.rehearsalChipCount = 0;

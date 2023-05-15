@@ -44,6 +44,10 @@ public class Role {
         this.isOccupied = true;
     }
 
+    public void setNotOccupied() {
+        this.isOccupied = false;
+    }
+
     public void setFinishedShooting(boolean finishedShooting) {
         this.finishedShooting = finishedShooting;
     }

@@ -294,7 +294,8 @@ public class GUI {
         if(winners.size() == 1){
             int winnerNum = winners.get(0).getPlayerNum();
             System.out.println("The winner is: Player "+winnerNum+"! Congratulations!");
-        }else{
+        }
+        else{
             System.out.println("There has been a tie! The winners are: ");
             for(int i = 0; i < winners.size(); i++){
                 int winnerNum = winners.get(i).getPlayerNum();
@@ -302,5 +303,9 @@ public class GUI {
             }
             System.out.print("Congratulations!");
         }
+    }
+
+    public void nextDay() {
+        System.out.println("All but one scene has wrapped. It is a new day!");
     }
 }

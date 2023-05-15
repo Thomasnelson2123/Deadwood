@@ -56,7 +56,7 @@ public class Board {
     }
 
     // resets board
-    public void resetBoard() throws Exception {
+    public void resetBoard(){
         // move players to trailer
         for(int i = 0; i < playerLocations.length; i++){
             playerLocations[i] = "Trailer";
@@ -65,11 +65,12 @@ public class Board {
         // change scene card in every room
         for (Room r : rooms.values()) {
             if (unusedScenes.size() == 0) {
-                throw new Exception("No more scene cards left");
+                System.out.println("No more scene cards left");
             }
             int roll = rand.nextInt(0, unusedScenes.size());
             r.setSceneCard(unusedScenes.get(roll));
             unusedScenes.remove(roll);
+            r.resetShotCounters();
         }
     }
 
@@ -162,7 +163,7 @@ public class Board {
     public int[] getShotCounters(String room) {
         Room r = this.getRoom(room);
         if (!r.canHaveScene()) {
-            return null;
+            return new int[] {0, 0};
         }
         return new int[] {r.getShotsRemaining(), r.getTotalShots()};
     }
@@ -300,9 +301,14 @@ public class Board {
         return this.playerLocations[playerNum - 1].equalsIgnoreCase("office");
     }
 
-
-    // room.getRoles
-    // this.playerRoles[]
+    public void resetOffCardRoles(String room){
+        Room roomObj = getRoom(room);
+        Role[] roles = roomObj.getRoles();
+        for(int i = 0; i < roles.length; i++){
+            roles[i].setNotOccupied();
+            roles[i].setFinishedShooting(false);
+        }
+    }
 
 
 }

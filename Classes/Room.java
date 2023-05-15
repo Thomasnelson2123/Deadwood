@@ -62,6 +62,9 @@ public class Room {
 
     // resets all shot counters, makes them uncompleted
     public void resetShotCounters() {
+        if (this.shots == null) {
+            return;
+        }
         for (ShotCounter shot: this.shots) {
             shot.setHasShot(true);
         }

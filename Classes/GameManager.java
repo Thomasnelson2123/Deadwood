@@ -5,9 +5,6 @@ import java.util.Random;
 
 
 public class GameManager {
-
-    private final Action[] ALL_ACTIONS = new Action[] 
-    {Action.Work, Action.Act, Action.Rehearse, Action.Upgrade, Action.Move};
     
     private Board board;
     private Player[] players;
@@ -16,7 +13,7 @@ public class GameManager {
 
     private Player currentPlayer;
     private int day;
-    private int completedScenes;
+    private int scenesLeft;
     private int maxDays = 4;
     private Random rand;
 
@@ -27,7 +24,7 @@ public class GameManager {
         this.players = players;
         this.gui = new GUI(this);
         this.day = 0;
-        this.completedScenes = 0;
+        this.scenesLeft = 2;
         this.rand = rand;
 
         if (players.length < 4) {
@@ -66,6 +63,13 @@ public class GameManager {
             // if null: user entered gui only command, manager needs not do anything
             if (args != null) {
                 parseAction(args);
+            }
+            // end day + end of game
+            if (this.scenesLeft == 1 && this.day == maxDays) {
+                determineWinner();
+            }
+            else if (this.scenesLeft == 1 && this.day < maxDays) {
+                nextDay();
             }
 
         }
@@ -111,7 +115,10 @@ public class GameManager {
     
     // resets players/scenes to next day
     public void nextDay(){
-
+        this.board.resetBoard();
+        this.scenesLeft = 10;
+        this.gui.nextDay();
+        this.day++;
     }
 
     //returns player info to gui for display with "who" command
@@ -123,8 +130,7 @@ public class GameManager {
     public void act(Player player, String roomName){
         // check if they can even act rn
         //if player.actionstaken = none && has role
-        int shotsAvailable = this.board.getShotCounters(roomName)[0];
-        if (isActionAvailable(Action.Act, player) && shotsAvailable > 0) {
+        if (isActionAvailable(Action.Act, player) &&  this.board.getShotCounters(roomName)[0]> 0) {
             player.setAvailableActions(Action.None);
             int diceRoll = this.rand.nextInt(1, 7) + player.getRehearsalChipCount();
             String[] sceneInfo = this.board.getSceneInfo(getPlayerLocation(player.getPlayerNum()));
@@ -333,12 +339,46 @@ public class GameManager {
         //
         //so that way if we do playerlist[0] and playerroledifficulties[0] they are for the same player
 
+        board.resetOffCardRoles(room);
+
         ArrayList<Player> playerOnCardList = new ArrayList<Player>();
         ArrayList<Integer> playerRoleDifficulties = new ArrayList<Integer>();
 
-        for (String[] roleInfo: sceneRoleInfo) {
+        sceneWrapHelper(playerRoleDifficulties, playerOnCardList, sceneRoleInfo);
+        this.bank.payPlayersOnCard(budget,onCardDifficulties,playerOnCardList,playerRoleDifficulties);
+
+        boolean isPlayersOnCard = true;
+        if(playerOnCardList.size() == 0){
+            isPlayersOnCard = false;
+        }
+
+        ArrayList<Player> playerOffCardList = new ArrayList<Player>();
+        ArrayList<Integer> offCardDifficulties = new ArrayList<Integer>();
+
+        String[][] roomRoleInfo = this.board.getRoomRoles(room);
+        sceneWrapHelper(offCardDifficulties, playerOffCardList, roomRoleInfo);
+
+        // decrement the count of scenes left on the board
+        this.scenesLeft--;
+        this.bank.payPlayersOffCard(isPlayersOnCard, playerOffCardList, offCardDifficulties);
+
+        //remove all player's roles and rehearsal chips who were working on this scene
+        removePlayerRolesAndChips(playerOnCardList, playerOffCardList);
+
+        // set all off card role's occupied vars to false
+        //Role[] roles = board.getRoom(room).getRoles();
+    }
+
+    // gets a list of players and the difficulties of the roles they are working on
+    // can be used for roles off or on the card
+    public void sceneWrapHelper(ArrayList<Integer> roleDifficulties, ArrayList<Player> playersList, String[][] roleInfoArray) {
+
+        // iterates through all the info for each role
+        for (String[] roleInfo: roleInfoArray) {
             Player p = null;
+            // iterate through every player
             for (Player player: this.players) {
+                // gets role info for player; ignores if null
                 String[] playerRoleInfo = this.board.getPlayerRoleInfo(player.getPlayerNum());
                 if (playerRoleInfo == null) {
                     continue;
@@ -352,51 +392,14 @@ public class GameManager {
             }
 
             if(p != null){
-                playerOnCardList.add(p);
+                playersList.add(p);
                 int roleDifficulty = Integer.parseInt(roleInfo[2]);
-                playerRoleDifficulties.add(roleDifficulty);
+                roleDifficulties.add(roleDifficulty);
             }
         }
-
-        this.bank.payPlayersOnCard(budget,onCardDifficulties,playerOnCardList,playerRoleDifficulties);
-
-        boolean isPlayersOnCard = true;
-        if(playerOnCardList.size() == 0){
-            isPlayersOnCard = false;
-        }
-
-        ArrayList<Player> playerOffCardList = new ArrayList<Player>();
-        ArrayList<Integer> offCardDifficulties = new ArrayList<Integer>();
-
-        String[][] roomRoleInfo = this.board.getRoomRoles(room);
-        for (String[] roleInfo: roomRoleInfo) {
-            Player p = null;
-            for (Player player: this.players) {
-                String[] playerRoleInfo = this.board.getPlayerRoleInfo(player.getPlayerNum());
-                if(playerRoleInfo == null){
-                    continue;
-                }
-                String playerRoleName = playerRoleInfo[0];
-                // player working role on card
-                if (playerRoleName.equals(roleInfo[0])) {
-                    p = player;
-                    break;
-                }
-            }
-
-            if(p != null){
-                playerOffCardList.add(p);
-                int roleDifficulty = Integer.parseInt(roleInfo[2]);
-                offCardDifficulties.add(roleDifficulty);
-            }
-        }
-
-        this.bank.payPlayersOffCard(isPlayersOnCard, playerOffCardList, offCardDifficulties);
-
-        //remove all player's roles and rehearsal chips who were working on this scene
-        removePlayerRolesAndChips(playerOnCardList, playerOffCardList);
-
     }
+
+
 
     // for all players given, removes roles (sets to null) and resets rehearsal chips (sets to 0)
     public void removePlayerRolesAndChips (ArrayList<Player> playersOnCard, ArrayList<Player> playersOffCard){
@@ -504,18 +507,19 @@ public class GameManager {
         //populate winners array
         for(int i = 0; i < players.length; i++){
             int currentScore = 0;
-            currentScore += players[i].getCredits();
-            currentScore += players[i].getMoney();
-            currentScore += players[i].getRank() * 5;
+            currentScore += this.players[i].getCredits();
+            currentScore += this.players[i].getMoney();
+            currentScore += this.players[i].getRank() * 5;
 
             if(currentScore > highScore){
                 //new high score! you are the current only winner
                 winners.clear();
-                winners.add(players[i]);
+                winners.add(this.players[i]);
                 highScore = currentScore;
-            }else if(currentScore == highScore){
+            }
+            else if(currentScore == highScore){
                 //you tied with someone else! add to winners list
-                winners.add(players[i]);
+                winners.add(this.players[i]);
                 //dont need to set highscore = currentscore bc thats already true
             }
         }
