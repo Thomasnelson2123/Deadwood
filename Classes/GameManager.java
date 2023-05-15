@@ -19,6 +19,8 @@ public class GameManager {
     private int completedScenes;
     private int maxDays = 4;
     private Random rand;
+
+    // constructor
     public GameManager(Board board, Player[] players, Bank bank, Random rand) {
         this.bank = bank;
         this.board = board;
@@ -69,8 +71,9 @@ public class GameManager {
         }
     }
 
+    //takes user input from the gui and determines which functions should be run
+    //also supplies each function with the relevant data it needs to function
     public void parseAction(String[] args){
-        //boolean actionSuccess = something;
         
         switch(args[0]){
             case "act":
@@ -111,6 +114,7 @@ public class GameManager {
 
     }
 
+    //returns player info to gui for display with "who" command
     public void displayPlayerStats(Player player) {  
         this.gui.displayCurrentPlayerInfo(player.getPlayerNum(), player.getRank(), player.getMoney(), player.getCredits());
     }
@@ -299,7 +303,11 @@ public class GameManager {
         
     }
 
-    // pay players for completing a scene
+    // resolve all actions when a scene ends. This includes:
+    // pay players on card for completing a scene
+    // pay players off card for completing the scene
+    // reset roles of players working in this room
+    // reset rehearsal chips of players working in this room
     public void sceneWrap(String room){
         // can get role for every player
         // can then check if role is in the room being completed
@@ -390,6 +398,7 @@ public class GameManager {
 
     }
 
+    // for all players given, removes roles (sets to null) and resets rehearsal chips (sets to 0)
     public void removePlayerRolesAndChips (ArrayList<Player> playersOnCard, ArrayList<Player> playersOffCard){
         //iterate through players on card and set their roles to null
         for(int i = 0; i < playersOnCard.size(); i++){
@@ -427,6 +436,8 @@ public class GameManager {
         return board.getRoomNeighbors(room);
     }
 
+    // ends the current player's turn
+    // resets current player's abilities and sets the next player in line to be currentPlayer
     public void endTurn(){
         // reset players abilities
         // set current player to next player
@@ -442,6 +453,7 @@ public class GameManager {
         this.currentPlayer = this.players[currentPlayerNum % this.players.length];
     }
 
+    // end current game session, close game
     public void endGame(){
         System.exit(1);
     }
@@ -470,6 +482,7 @@ public class GameManager {
         return this.board.getShotCounters(room);
     }
 
+    // returns a boolean to see if the player provided is able to perform the given action
     public boolean isActionAvailable(Action action, Player player) {
         Action[] actions = player.getAvailableActions();
         for (Action a: actions) {
@@ -478,6 +491,37 @@ public class GameManager {
             }
         }
         return false;
+    }
+
+    //called at the end of a game to calculate + pass to gui who the winner(s) are.
+    public void determineWinner(){
+        
+        //we have an arraylist of winners that will usually just be one winner
+        //but in the event of a tie, it will contain all players that tie.
+        ArrayList<Player> winners = new ArrayList<Player>();
+        int highScore = 0;
+
+        //populate winners array
+        for(int i = 0; i < players.length; i++){
+            int currentScore = 0;
+            currentScore += players[i].getCredits();
+            currentScore += players[i].getMoney();
+            currentScore += players[i].getRank() * 5;
+
+            if(currentScore > highScore){
+                //new high score! you are the current only winner
+                winners.clear();
+                winners.add(players[i]);
+                highScore = currentScore;
+            }else if(currentScore == highScore){
+                //you tied with someone else! add to winners list
+                winners.add(players[i]);
+                //dont need to set highscore = currentscore bc thats already true
+            }
+        }
+
+        //print to gui
+        gui.displayWinners(winners);
     }
 
 }

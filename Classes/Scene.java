@@ -5,6 +5,8 @@ public class Scene {
     private Role[] roles;
     private int sceneNumber;
     private boolean isFacingUp;
+
+    // constructor
     public Scene(String name, int sceneNumber, String caption, int budget, Role[] roles) {
         this.isFacingUp = false;
         this.name = name;

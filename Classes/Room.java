@@ -33,10 +33,12 @@ public class Room {
         return adjacentRoomNames;
     }
 
+    // returns int for total number of shot counters, including completed ones
     public int getTotalShots() {
         return this.shots.length;
     }
 
+    // returns int for the number of uncompleted shot counters
     public int getShotsRemaining() {
         int total = 0;
         for (ShotCounter shot: this.shots) {
@@ -47,6 +49,7 @@ public class Room {
         return total;
     }
 
+    // removes one shot counter from the room
     public void removeShot(){
         for(ShotCounter shot: this.shots){
             if(shot.hasShot()){
@@ -57,6 +60,7 @@ public class Room {
 
     }
 
+    // resets all shot counters, makes them uncompleted
     public void resetShotCounters() {
         for (ShotCounter shot: this.shots) {
             shot.setHasShot(true);

@@ -4,7 +4,8 @@ import java.util.Scanner;
 public class GUI {
     private Scanner scanner;
     private GameManager manager;
-    //ArrayList<String> roomList = new ArrayList<String>();
+
+    // constructor 
     public GUI(GameManager manager) {
         scanner = new Scanner(System.in);
         this.manager = manager;
@@ -50,8 +51,7 @@ public class GUI {
         return null; // unreachable code
     }
 
-
-
+    // returns currentPlayer
     public String[] activePlayer() {
         return new String[] {"who"};
     }
@@ -102,12 +102,14 @@ public class GUI {
 
     }
 
+    // when player selects move action, prompts player to ask where they'd like to move to
     public String getDestination() {
         System.out.println("Where would you like to move to?");
         String destination = scanner.nextLine();
         return destination; 
     }
 
+    // when player selects work action, prompts player to ask which role they'd like to take
     public String[] takeRole() {
         System.out.println("Which role would you like to take?");
         String targetRole = scanner.nextLine();
@@ -129,9 +131,12 @@ public class GUI {
     public void notInOffice() {
         System.out.println("You must be in the office to upgrade!");
     }
+
     public String[] upgrade() {
         return new String[] {"upgrade"};
     }
+
+    // when player selects upgrade action, prompts player to ask what rank they want and what they want to pay with
     public String[] promptForUpgrade() {
         System.out.println("Which rank would you like to upgrade to?");
         String targetRank = scanner.nextLine();
@@ -142,7 +147,7 @@ public class GUI {
         return new String[] {targetRank, paymentType};
     }
 
-    
+    // tells player their move in invalid, and prints valid moves
     public void invalidMove() {
         System.out.println("You cannot move there!");
         System.out.print("Valid options are: ");
@@ -153,6 +158,7 @@ public class GUI {
         System.out.println("Player " + playerNum + " has moved to " + room);
     }
 
+    // prints all adjacent rooms/rooms that are valid to move to
     private void displayNeighbors() {
         String[] neighbors = manager.getPlayerRoomNeighbors();
         for (String neighbor: neighbors) {
@@ -161,6 +167,7 @@ public class GUI {
         System.out.print("\n");
     }
 
+    // notifies player that they cannot upgrade, any why
     public void invalidUpgrade(boolean badInput){
         System.out.println("Upgrade failed!");
         if(badInput){
@@ -170,6 +177,7 @@ public class GUI {
         }
     }
 
+    // prints all relevant info based on room given, including scene info
     private void printRoomInfo(String room) {
         String[][] roomRoleInfo = this.manager.getRoomRoleInfo(room);
         String[][] sceneRoleInfo = this.manager.getSceneRoleInfo(room);
@@ -279,5 +287,20 @@ public class GUI {
 
     public void upgradeSuccess(){
         System.out.println("Upgrade successful!");
+    }
+
+    // prints given winner(s)
+    public void displayWinners(ArrayList<Player> winners){
+        if(winners.size() == 1){
+            int winnerNum = winners.get(0).getPlayerNum();
+            System.out.println("The winner is: Player "+winnerNum+"! Congratulations!");
+        }else{
+            System.out.println("There has been a tie! The winners are: ");
+            for(int i = 0; i < winners.size(); i++){
+                int winnerNum = winners.get(i).getPlayerNum();
+                System.out.print("Player "+winnerNum+", ");
+            }
+            System.out.print("Congratulations!");
+        }
     }
 }

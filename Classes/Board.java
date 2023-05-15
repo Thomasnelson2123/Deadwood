@@ -10,7 +10,7 @@ public class Board {
     private ArrayList<Scene> unusedScenes;
     private Random rand;
     
-
+    // constructor
     public Board(int numPlayers, Room[] roomData, Scene[] sceneData, Random rand) throws Exception {
         this.unusedScenes = new ArrayList<Scene>();
         this.rooms = new HashMap<String, Room>();
@@ -94,10 +94,12 @@ public class Board {
         return playerLocations[playerNum - 1];
     }
 
+    // returns which rooms are next to the specified room, used to determine if a player move is valid
     public String[] getRoomNeighbors(String room) {
         return getRoom(room).getAdjacentRoomNames();
     }
 
+    //gets the roles inside of a room that are NOT on the scene card
     public String[][] getRoomRoles(String room) {
         Room r = getRoom(room);
         Scene s = r.getSceneCard();
@@ -110,6 +112,7 @@ public class Board {
 
     }
 
+    //gets the roles on a scene card. Does NOT return roles that are off the scene card in the room.
     public String[][] getSceneRoles(String room) {
         Room r = getRoom(room);
         Scene s = r.getSceneCard();
@@ -120,6 +123,8 @@ public class Board {
         return getRoleInfo(s.getRoles());
     }
 
+    // given a room, finds its scene and returns all relevant info on it
+    // (name, caption, budget, scene number, and whether or not it's been flipped)
     public String[] getSceneInfo(String room) {
         Room r = getRoom(room);
         Scene s = r.getSceneCard();
@@ -137,6 +142,8 @@ public class Board {
 
     }
 
+    // given a role, returns all relevant info on it
+    // (name, caption, difficulty, whether or not it's on a card, whether or not it's occupied)
     private String[][] getRoleInfo(Role[] roles) {
         int numRoles = roles.length;
         String[][] info = new String[numRoles][5];
@@ -151,6 +158,7 @@ public class Board {
         return info;
     }
 
+    // returns the number of shot counters remaining in a given room's scene
     public int[] getShotCounters(String room) {
         Room r = this.getRoom(room);
         if (!r.canHaveScene()) {
@@ -204,6 +212,7 @@ public class Board {
 
     }
 
+    // sets a player's current role to null
     public void removePlayerRole(int playerNum){
         this.playerRoles[playerNum - 1] = null;
     }
@@ -273,16 +282,20 @@ public class Board {
 
     }
 
+    // removes one shot counter from the scene card in the given room
     public void removeShotCounter(String currentRoom){
         Room room = this.getRoom(currentRoom);
         room.removeShot();
     }
 
+    // removes the scene card from the current room
     public void removeCard(String room) {
         Room r = getRoom(room);
         r.removeSceneCard();
     }
 
+    // returns whether or not the player is currently in the room "Office"
+    // used for determining whether or not the player can take the upgrade action
     public boolean playerInOffice(int playerNum) {
         return this.playerLocations[playerNum - 1].equalsIgnoreCase("office");
     }

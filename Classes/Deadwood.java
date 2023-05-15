@@ -7,6 +7,8 @@ public class Deadwood{
 
     static Room[] rooms;
     static Scene[] scenes;
+
+    // main function for deadwood, initializes controller/view, and then tells controller to initialize the model.
     public static void main(String[] args) throws ParserConfigurationException, Exception {
         
         Random rand = new Random(3);
@@ -41,6 +43,7 @@ public class Deadwood{
   
     }
 
+    // initializes the parseXML functions in the parseXML class with the correct filepath
     private static void parseXML() throws Exception{
         ParseXML parser = new ParseXML();
         String cwd = System.getProperty("user.dir");

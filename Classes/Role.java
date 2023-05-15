@@ -40,7 +40,6 @@ public class Role {
         return isOccupied;
     }
     
-    // should only be called
     public void setOccupied(){
         this.isOccupied = true;
     }

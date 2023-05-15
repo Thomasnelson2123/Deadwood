@@ -9,6 +9,7 @@ public class Bank {
     
     private Random rand;
 
+    // constructor
     public Bank(Random rand){
         this.rand = rand;
     }
@@ -74,6 +75,8 @@ public class Bank {
         return isSuccess;
     }
 
+    // rewards an individual player for successfully acting and removing one shot counter
+    // NOT the same as completing a scene!
     public void actingReward(boolean success, boolean isOnCard, Player currentPlayer){
         int currentCredits = currentPlayer.getCredits();
         int currentMoney = currentPlayer.getMoney();
@@ -97,7 +100,7 @@ public class Bank {
         }
     }
 
-    // pays players for completing a scene based on their roles + scene budget
+    // pays players on card for completing a scene based on their roles + scene budget
     public void payPlayersOnCard(int budget, int[] onCardDifficulties, ArrayList<Player> playerList, ArrayList<Integer> playerRoleDifficulties){
         int[] rolls = new int[budget];
         
@@ -137,6 +140,7 @@ public class Bank {
         }
     }
 
+    // pay extras for completing a scene based on their role and whether or not there are any players on card
     public void payPlayersOffCard(boolean anyPlayersOnCard, ArrayList<Player> playerList, ArrayList<Integer> playerRoleDifficulties){
         //extras dont get a bonus if nobody was working on the card
         if(anyPlayersOnCard){
