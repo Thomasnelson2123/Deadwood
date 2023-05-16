@@ -42,21 +42,17 @@ public class Deadwood{
     }
 
     private static void parseXML() throws Exception{
+        
+        // edited this code after milestone2 was due
+        // it compiled on both of our machines but we didn't test it on the lab machine, and it did not compile properly
+        // we are sorry about that
         ParseXML parser = new ParseXML();
         String cwd = System.getProperty("user.dir");
         String[] path = cwd.split("\\\\");
-        String prefix = "";
+        String prefix = "../XML_Files/";
+        System.out.println(prefix);
         // because for somer reason when Deadwood.java is run, it doesn't recognize
         // it is in the classes directory... but sometimes it does?
-        if (path[path.length - 1].equals("Classes")) {
-            prefix = "../XML_Files/";
-        }
-        else {
-            if (!path[path.length - 1].equals("Deadwood")) {
-                throw new Exception("In an unknown directory");
-            }
-            prefix = "XML_Files/";
-        }
         rooms = parser.readBoardData(parser.getDocFromFile(prefix + "board.xml"));
         scenes = parser.readCardData(parser.getDocFromFile(prefix + "cards.xml"));
     }
