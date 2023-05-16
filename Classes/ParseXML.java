@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+// constructor
 public class ParseXML {
     public Document getDocFromFile(String filename) throws ParserConfigurationException{
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -109,7 +110,7 @@ public class ParseXML {
                         takeDims = getArea(a);
                     }
                 }
-                ShotCounter take = new ShotCounter(takeNum, takeDims, false);
+                ShotCounter take = new ShotCounter(takeNum, takeDims, true);
                 shots.add(take); 
             } 
         }

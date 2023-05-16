@@ -7,9 +7,11 @@ public class Deadwood{
 
     static Room[] rooms;
     static Scene[] scenes;
+
+    // main function for deadwood, initializes controller/view, and then tells controller to initialize the model.
     public static void main(String[] args) throws ParserConfigurationException, Exception {
         
-        Random rand = new Random(2);
+        Random rand = new Random(3);
         // get number of players
         if (args.length!= 1) {
             System.out.println("Program requires one argument (number of players)");
@@ -31,16 +33,17 @@ public class Deadwood{
         // parses the XML files and initializes the rooms and scenes
         parseXML();
 
-        Bank bank = new Bank();
+        Bank bank = new Bank(rand);
         Board board = new Board(numPlayers, rooms, scenes, rand);
         Player[] players = new Player[numPlayers];
-        GameManager manager = new GameManager(board, players, bank);
+        GameManager manager = new GameManager(board, players, bank, rand);
 
         // main gameplay loop
         manager.mainLoop();
   
     }
 
+    // initializes the parseXML functions in the parseXML class with the correct filepath
     private static void parseXML() throws Exception{
         ParseXML parser = new ParseXML();
         String cwd = System.getProperty("user.dir");

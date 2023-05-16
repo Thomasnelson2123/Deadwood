@@ -33,6 +33,43 @@ public class Room {
         return adjacentRoomNames;
     }
 
+    // returns int for total number of shot counters, including completed ones
+    public int getTotalShots() {
+        return this.shots.length;
+    }
+
+    // returns int for the number of uncompleted shot counters
+    public int getShotsRemaining() {
+        int total = 0;
+        for (ShotCounter shot: this.shots) {
+            if (shot.hasShot()) {
+                total++;
+            }
+        }
+        return total;
+    }
+
+    // removes one shot counter from the room
+    public void removeShot(){
+        for(ShotCounter shot: this.shots){
+            if(shot.hasShot()){
+                shot.setHasShot(false);
+                return;
+            }
+        }
+
+    }
+
+    // resets all shot counters, makes them uncompleted
+    public void resetShotCounters() {
+        if (this.shots == null) {
+            return;
+        }
+        for (ShotCounter shot: this.shots) {
+            shot.setHasShot(true);
+        }
+    }
+
      //#endregion
 
     // for debug
@@ -51,9 +88,13 @@ public class Room {
         this.sceneCard = sceneCard;
     }
 
-    public boolean hasScene() {
-        return this.hasScene;
+    public void removeSceneCard() {
+        this.sceneCard = null;
+        
     }
 
+    public boolean canHaveScene() {
+        return this.hasScene;
+    }
 
 }

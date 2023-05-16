@@ -4,9 +4,11 @@ public class Scene {
     private int budget;
     private Role[] roles;
     private int sceneNumber;
-    private boolean isFlipped;
+    private boolean isFacingUp;
+
+    // constructor
     public Scene(String name, int sceneNumber, String caption, int budget, Role[] roles) {
-        this.isFlipped = false;
+        this.isFacingUp = false;
         this.name = name;
         this.caption = caption;
         this.budget = budget;
@@ -34,14 +36,15 @@ public class Scene {
         return roles;
     }
 
-    public boolean isFlipped() {
-        return isFlipped;
+    public boolean isFacingUp() {
+        return isFacingUp;
     }
+
 //#endregion
 
     // flips the card over
     public void flipCard() {
-        this.isFlipped = !this.isFlipped;
+        this.isFacingUp = !this.isFacingUp;
     }
 
 }   
