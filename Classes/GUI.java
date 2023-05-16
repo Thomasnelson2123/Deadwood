@@ -3,12 +3,10 @@ import java.util.Scanner;
 
 public class GUI {
     private Scanner scanner;
-    private GameManager manager;
 
     // constructor 
-    public GUI(GameManager manager) {
+    public GUI() {
         scanner = new Scanner(System.in);
-        this.manager = manager;
     }
 
     // lets player type the command they want to execute
@@ -37,7 +35,7 @@ public class GUI {
                 case "upgrade":
                     return upgrade();
                 case "work":
-                    return takeRole();
+                    return work();
                 case "end":
                     return endTurn();
                 case "terminate":
@@ -58,22 +56,26 @@ public class GUI {
 
 
     // displays to user the active player
-    public void displayCurrentPlayerInfo(int playerNum, int rank, int money, int credits) {
+    public void displayCurrentPlayerInfo(int playerNum, int rank, int money, int credits, int chips) {
 
         System.out.println("Current Player num: " + playerNum);
         System.out.println("Rank of " + rank);
         System.out.println("Player has " + money + " dollars and " + credits + " credits");
+        System.out.println("Rehearsal chips: " + chips);
     }
 
-    // get current location of player
-    // BAD CODE FIX LATER
+    
     public String[] getLocation() {
-        String location = manager.getPlayerLocation(manager.getCurrentPlayerNum());
+        return new String[] {"where"};
+    }
+
+    public void displayLocation(String location, String[] neighbors, String[][] roomRoleInfo, 
+    String[][] sceneRoleInfo, String[] sceneInfo, int[] shots) {
         System.out.println("Current player is at: " + location);
         System.out.print("Nearby rooms are: ");
-        displayNeighbors();
-        printRoomInfo(location);
-        return null;
+        displayNeighbors(neighbors);
+        printRoomInfo(location, roomRoleInfo, sceneRoleInfo, sceneInfo, shots);
+
     }
 
     public String[] act() {
@@ -85,21 +87,17 @@ public class GUI {
     }
 
     public String[] move() {
-        // current player is allowed to move, prompt them for where they would like to go
-        if (manager.canCurrentPlayerMove()) {
-            System.out.println("Where would you like to move to?");
-            String destination = scanner.nextLine();
-            return new String[] {"move", destination}; 
-        } 
-        // find out if it is because current player is working
-        else if (this.manager.isCurrentPlayerWorking()) {
-            System.out.println("You cannot leave your role until you wrap!");
-            return new String[] {"move", null};
-        }else{
-            actionAlreadyTaken();
-            return new String[] {"move", null};
-        }
+        return new String[] {"move"};
+    }
 
+    public String getDestinationRoom(){
+        System.out.println("Where would you like to move to?");
+            String destination = scanner.nextLine();
+            return destination;
+    }
+
+    public void cannotMoveWithRole(){
+        System.out.println("You cannot leave your role until you wrap!");
     }
 
     // when player selects move action, prompts player to ask where they'd like to move to
@@ -109,12 +107,17 @@ public class GUI {
         return destination; 
     }
 
+    public String[] work() {
+        return new String[] {"work"};
+    }
+
     // when player selects work action, prompts player to ask which role they'd like to take
-    public String[] takeRole() {
+
+    public String takeRole() {
         System.out.println("Which role would you like to take?");
         String targetRole = scanner.nextLine();
 
-        return new String[] {"work", targetRole};
+        return targetRole;
     }
 
     // ends the game early
@@ -148,10 +151,10 @@ public class GUI {
     }
 
     // tells player their move in invalid, and prints valid moves
-    public void invalidMove() {
+    public void invalidMove(String[] neighbors) {
         System.out.println("You cannot move there!");
         System.out.print("Valid options are: ");
-        displayNeighbors();
+        displayNeighbors(neighbors);
     }
 
     public void displayMove(int playerNum, String room) {
@@ -159,8 +162,7 @@ public class GUI {
     }
 
     // prints all adjacent rooms/rooms that are valid to move to
-    private void displayNeighbors() {
-        String[] neighbors = manager.getPlayerRoomNeighbors();
+    private void displayNeighbors(String[] neighbors) {
         for (String neighbor: neighbors) {
             System.out.print(neighbor + ", ");
         }
@@ -178,11 +180,7 @@ public class GUI {
     }
 
     // prints all relevant info based on room given, including scene info
-    private void printRoomInfo(String room) {
-        String[][] roomRoleInfo = this.manager.getRoomRoleInfo(room);
-        String[][] sceneRoleInfo = this.manager.getSceneRoleInfo(room);
-        String[] sceneInfo = this.manager.getSceneInfo(room);
-        int[] shots = this.manager.getShotCounterInfo(room);
+    private void printRoomInfo(String location, String[][] roomRoleInfo, String[][] sceneRoleInfo, String[] sceneInfo, int[] shots) {
 
         //scene info
         //name - caption
@@ -220,7 +218,7 @@ public class GUI {
         if(shots != null) {
             System.out.println(shots[0] + " of " + shots[1] + " shots remaining");
             System.out.println();
-            if (shots[0] == 0) {
+            if (shots[0] == 0 && !(location.equalsIgnoreCase("Trailer") || location.equalsIgnoreCase("Office"))) {
                 System.out.println("Scene has wrapped!");
             }
         }
@@ -303,9 +301,16 @@ public class GUI {
             }
             System.out.print("Congratulations!");
         }
+        System.out.println("Press any key to exit the game");
+        scanner.nextLine();
     }
 
     public void nextDay() {
         System.out.println("All but one scene has wrapped. It is a new day!");
+    }
+
+    public void scenelessRoom() {
+        System.out.println("This room has no scenes for you to act. What are you doing?? \n Does thou not know? Does thou not see? There are no scenes!");
+
     }
 }

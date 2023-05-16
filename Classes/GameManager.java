@@ -22,9 +22,9 @@ public class GameManager {
         this.bank = bank;
         this.board = board;
         this.players = players;
-        this.gui = new GUI(this);
-        this.day = 0;
-        this.scenesLeft = 2;
+        this.gui = new GUI();
+        this.day = 1;
+        this.scenesLeft = 10;
         this.rand = rand;
 
         if (players.length < 4) {
@@ -65,8 +65,9 @@ public class GameManager {
                 parseAction(args);
             }
             // end day + end of game
-            if (this.scenesLeft == 1 && this.day == maxDays) {
+            if (this.scenesLeft == 1 && this.day >= maxDays) {
                 determineWinner();
+                System.exit(1);
             }
             else if (this.scenesLeft == 1 && this.day < maxDays) {
                 nextDay();
@@ -87,10 +88,11 @@ public class GameManager {
                 rehearse(this.currentPlayer);
                 break;
             case "work":
-                takeRole(args[1], this.currentPlayer);
+                work(this.currentPlayer);
                 break;
             case "move":
-                move(args[1], this.currentPlayer);
+                //move(args[1], this.currentPlayer);
+                move(this.currentPlayer);
                 break;
             case "upgrade":
                 if (this.board.playerInOffice(this.currentPlayer.getPlayerNum())) {
@@ -110,6 +112,16 @@ public class GameManager {
             case "who":
                 displayPlayerStats(this.currentPlayer);
                 break;
+            case "where":
+                String location = this.getPlayerLocation(this.currentPlayer.getPlayerNum());
+                String[][] roomRoleInfo = getRoomRoleInfo(location);
+                String[][] sceneRoleInfo = getSceneRoleInfo(location);
+                String[] neighbors = this.board.getRoomNeighbors(location);
+                String[] sceneInfo = this.board.getSceneInfo(location);
+                int[] shots = this.board.getShotCounters(location);
+
+                this.gui.displayLocation(location, neighbors, roomRoleInfo, sceneRoleInfo, sceneInfo, shots);
+                break;
         }
     }
     
@@ -123,7 +135,7 @@ public class GameManager {
 
     //returns player info to gui for display with "who" command
     public void displayPlayerStats(Player player) {  
-        this.gui.displayCurrentPlayerInfo(player.getPlayerNum(), player.getRank(), player.getMoney(), player.getCredits());
+        this.gui.displayCurrentPlayerInfo(player.getPlayerNum(), player.getRank(), player.getMoney(), player.getCredits(), player.getRehearsalChipCount());
     }
 
     // resolve the "act" action a player may take
@@ -213,8 +225,7 @@ public class GameManager {
         //int max_rehearsal_chips = difficulty - 1
     }
 
-    // resolve the "take role" action a player may take
-    public void takeRole(String role, Player player){
+    public void work(Player player) {
         // get room player is in
         String playerRoom = board.getPlayerRoom(player.getPlayerNum());
         // player is already working a role, cannot take another
@@ -223,10 +234,25 @@ public class GameManager {
         }
         //if shot counters = 0, this scene has already been completed
         else if(board.getShotCounters(playerRoom)[0] == 0){
-            this.gui.noShotCounters();
+            if (playerRoom.equalsIgnoreCase("Trailer") || playerRoom.equalsIgnoreCase("Office")) {
+                this.gui.scenelessRoom();
+            }
+            else {
+                this.gui.noShotCounters();
+            }
         }
+        else {
+            String response = this.gui.takeRole();
+            takeRole(response, player);
+        }
+    }
+
+    // resolve the "take role" action a player may take
+    public void takeRole(String role, Player player){
+        
+        String playerRoom = board.getPlayerRoom(player.getPlayerNum());
         // role isn't in same room as player, they can't take that role
-        else if (!board.isRoleInRoom(playerRoom, role)) {
+        if (!board.isRoleInRoom(playerRoom, role)) {
             this.gui.roleNotInRoom();
         }
         // role IS in room, but it isn't available
@@ -249,13 +275,22 @@ public class GameManager {
     }
 
     // resolve the "move" action a player may take
-    public void move(String destinationRoom, Player player) {
-        // destinationRoom will be null if the user tries to move twice
-        if (destinationRoom != null) {
-            if (this.isActionAvailable(Action.Move, player)) {
+    public void move(Player player) {
+        if(!canCurrentPlayerMove()){
+            if(isCurrentPlayerWorking()){
+                gui.cannotMoveWithRole();
+            }else{
+                gui.actionAlreadyTaken();
+            }
+        }else {
+            //get room to move to
+            String destinationRoom = gui.getDestinationRoom();
+
+            //figure out if thats valid
+            if (destinationRoom != null) {
                 boolean success = board.movePlayer(player.getPlayerNum(), destinationRoom);
                 if (!success) {
-                    gui.invalidMove();
+                    gui.invalidMove(this.getPlayerRoomNeighbors());
                 }
                 else {
                     //this.currentPlayer.setCanMove(false);
@@ -263,8 +298,6 @@ public class GameManager {
                     gui.displayMove(player.getPlayerNum(), destinationRoom);
                     
                 }
-            }else{
-
             }
         }
     }
