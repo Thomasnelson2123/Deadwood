@@ -1,7 +1,8 @@
 # Deadwood
 
 ----------SETUP------------
-
+compile: javac Deadwood.java
+         java Deadwood {num_players 2-8}
 make sure the java files are compiled and that you provide an argument for the number of players when running the command.
 if you get an exception when starting the game from the xml parser, make sure your xml files are in the correct location
 and that you are running the game on a lab machine.
@@ -17,7 +18,7 @@ After 3 days, a winner is determined based on who has the most money/credits/ran
 
 who - displays current player info
 
-where - displays current player's locational info. includes roles and current scene data.
+where - displays current player's locational info. includes roles and current scene data, as well as neighboring rooms
 
 end - end current player's turn. can be entered if player has taken no actions.
 
@@ -30,3 +31,5 @@ act - if you have a role, attempt to remove a rehearsal chip and get rewarded if
 rehearse - if you have a role, adds one rehearsal chips to current player.
 
 upgrade - if you are in the office, you may upgrade to a specified rank using credits or money
+
+terminate - ends the program
