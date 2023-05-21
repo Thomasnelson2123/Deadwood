@@ -1,6 +1,7 @@
 
 import java.util.Random;
 
+import javax.swing.JOptionPane;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class Deadwood{
@@ -13,23 +14,18 @@ public class Deadwood{
         
         Random rand = new Random(3);
         // get number of players
-        if (args.length!= 1) {
-            System.out.println("Program requires one argument (number of players)");
-            return;
-        }
+        
+
+        Gooey gui = new Gooey();
+        gui.setVisible(true);
         int numPlayers = 0;
         try {
-            numPlayers = Integer.parseInt(args[0]);
-            if (numPlayers < 2 || numPlayers > 8) {
-                System.out.println("Game only supports 2-8 players");
-                return;
-            }
-            
-        } catch (NumberFormatException e) {
-            System.out.println("Argument must be an integer between 2 and 8");
-            return;
-        }
+            numPlayers = Integer.parseInt(JOptionPane.showInputDialog(gui, "How many players?")); 
 
+        } catch (Exception e) {
+            System.out.println("Well well well, have you got a liscence for that unparsable integer? Sounds like you not compiling, init? Off you go");
+            System.exit(0);
+        }
         // parses the XML files and initializes the rooms and scenes
         parseXML();
 
@@ -40,6 +36,9 @@ public class Deadwood{
 
         // main gameplay loop
         manager.mainLoop();
+
+        
+        // Take input from the user about number of players
   
     }
 
