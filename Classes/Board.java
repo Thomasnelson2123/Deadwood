@@ -310,7 +310,40 @@ public class Board {
         }
     }
 
-    
+    public String[] getAdjacentRoomNames(Player player){
+        String targetRoomName = getPlayerRoom(player.getPlayerNum());
+        Room targetRoom = getRoom(targetRoomName);
+        return targetRoom.getAdjacentRoomNames();
+    }
+
+    public String[] availableRoles(Player player){
+        String targetRoomName = getPlayerRoom(player.getPlayerNum());
+
+        String[][] roomRoles = getRoomRoles(targetRoomName);
+        String[][] sceneRoles = getSceneRoles(targetRoomName);
+
+        ArrayList<String> tempList = new ArrayList<String>();
+
+        // populate arraylist with non occupied roles
+        for(int i = 0; i < roomRoles.length; i++){
+            if(roomRoles[i][4].equals("false")){ //if occupied == false
+                tempList.add(roomRoles[i][0]);
+            }
+        }
+        for(int i = 0; i < sceneRoles.length; i++){
+            if(sceneRoles[i][4].equals("false")){ //if occupied == false
+                tempList.add(sceneRoles[i][0]);
+            }
+        }
+
+        // turn the arraylist into a normal array
+        String[] returnList = new String[tempList.size()];
+        for(int i = 0; i < tempList.size(); i++){
+            returnList[i] = tempList.get(i);
+        }
+
+        return returnList;
+    }
 
 
 }

@@ -566,6 +566,14 @@ public class GameManager {
         gui.displayWinners(winners);
     }
 
-    
+    // given a player, returns all adjacent rooms in their current room
+    public String[] getAdjacentRoomNames(Player player){
+        return board.getAdjacentRoomNames(player);
+    }
+
+    // given a player, returns all available roles in their current room
+    public String[] getAllAvailableRoles(Player player){
+        return board.availableRoles(player);
+    }
 
 }
