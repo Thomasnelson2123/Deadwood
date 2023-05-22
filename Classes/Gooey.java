@@ -9,19 +9,22 @@
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
 import javax.imageio.ImageIO;
 import java.awt.event.*;
 
 public class Gooey extends JFrame {
 
-  final double WIDTH = 1.5;
-  final double HEIGHT = 1.5;
+  double SCALE_HEIGHT = 0.8;
+  double SCALE_WIDTH = 0.8;
+  GameManager manager;
 
   // JLabels
   JLabel boardlabel;
   JLabel cardlabel;
   JLabel playerlabel;
   JLabel mLabel;
+  JLabel playerInfo;
   
   //JButtons
   JButton bAct;
@@ -29,6 +32,11 @@ public class Gooey extends JFrame {
   JButton bMove;
   JButton bWork;
   JButton bUpgrade;
+  JButton bEnd;
+
+  //JComboBox
+  JComboBox moveChoices;
+  JComboBox roleChoices;
   
   // JLayered Pane
   JLayeredPane bPane;
@@ -36,8 +44,8 @@ public class Gooey extends JFrame {
   // Constructor
   
   public Gooey() {
-      
-       // Set the title of the JFrame
+    
+        // Set the title of the JFrame
        super("Deadwood");
        // Set the exit option for the JFrame
        setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -49,15 +57,15 @@ public class Gooey extends JFrame {
     
        // Create the deadwood board
        boardlabel = new JLabel();
-       int width = (int)(screenSize.getWidth() / WIDTH);
-       int height = (int)(screenSize.getHeight() / HEIGHT);
-       Dimension bounds = new Dimension(width, height);
-       boardlabel.setSize(bounds);
+       //boardlabel.setSize(bounds);
        ImageIcon icon =  new ImageIcon("../Images/board.jpg");
-       Image resizedImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+       // set the scale width and height such that everything is scaled to the screen size
+       SCALE_HEIGHT*= screenSize.getHeight() / icon.getIconHeight();
+       SCALE_WIDTH*= screenSize.getWidth() / icon.getIconWidth();
+       Image resizedImage = icon.getImage().getScaledInstance((int)(icon.getIconWidth() * SCALE_WIDTH),(int)(icon.getIconHeight() * SCALE_HEIGHT), Image.SCALE_SMOOTH);
        icon = new ImageIcon(resizedImage);
        boardlabel.setIcon(icon); 
-       //boardlabel.setBounds(0,0,icon.getIconWidth(),icon.getIconHeight());
+       boardlabel.setBounds(0,0,icon.getIconWidth(),icon.getIconHeight());
       
        // Add the board to the lowest layer
        bPane.add(boardlabel, new Integer(0));
@@ -68,9 +76,9 @@ public class Gooey extends JFrame {
        // Add a scene card to this room
        cardlabel = new JLabel();
        ImageIcon cIcon =  new ImageIcon("01.png");
-       cardlabel.setIcon(cIcon); 
-       cardlabel.setBounds(20,65,cIcon.getIconWidth()+2,cIcon.getIconHeight());
-       cardlabel.setOpaque(true);
+    //    cardlabel.setIcon(cIcon); 
+    //    cardlabel.setBounds(20 / WIDTH,65,cIcon.getIconWidth()+2,cIcon.getIconHeight());
+    //    cardlabel.setOpaque(true);
       
        // Add the card to the lower layer
        bPane.add(cardlabel, new Integer(1));
@@ -81,10 +89,9 @@ public class Gooey extends JFrame {
        // Add a dice to represent a player. 
        // Role for Crusty the prospector. The x and y co-ordiantes are taken from Board.xml file
        playerlabel = new JLabel();
-       ImageIcon pIcon = new ImageIcon("r2.png");
+       ImageIcon pIcon = new ImageIcon("../Images/r2.png");
        playerlabel.setIcon(pIcon);
-       //playerlabel.setBounds(114,227,pIcon.getIconWidth(),pIcon.getIconHeight());  
-       playerlabel.setBounds(114,227,46,46);
+       this.setBoundsScaled(playerlabel, 114, 227, 46, 46); 
        playerlabel.setVisible(true);
        bPane.add(playerlabel,new Integer(3));
       
@@ -119,14 +126,63 @@ public class Gooey extends JFrame {
        bUpgrade.setBounds(icon.getIconWidth()+10, 150,100, 20);
        bUpgrade.addMouseListener(new boardMouseListener());
 
+       bEnd = new JButton("END TURN");
+       bEnd.setBackground(Color.white);
+       bEnd.setBounds(icon.getIconWidth()+10, 180,100, 20);
+       bEnd.addMouseListener(new boardMouseListener());
+
+       String[] test = {"boo", "b"};
+       moveChoices = new JComboBox<>(test);
+       moveChoices.setSelectedIndex(-1);
+       bEnd.setBackground(Color.white);
+       moveChoices.setBounds(icon.getIconWidth()+10, 210,100, 20);
+       moveChoices.addMouseListener(new boardMouseListener());
+
+
+
        // Place the action buttons in the top layer
        bPane.add(bAct, new Integer(2));
        bPane.add(bRehearse, new Integer(2));
        bPane.add(bMove, new Integer(2));
        bPane.add(bWork, new Integer(2));
        bPane.add(bUpgrade, new Integer(2));
+       bPane.add(bEnd, new Integer(2));
+       bPane.add(moveChoices, 2);
 
+       playerInfo = new JLabel("test");
+       
+       playerInfo.setBounds(icon.getIconWidth()+10,240,130, 120);
+       //playerInfo.
+       bPane.add(playerInfo);
   }
+
+    public void displayPlayerStats() {
+        int[] pstats = this.manager.getPlayerStats();
+        String displayText = String.format("<html><h2>Current Player: %d</h2>Money: %d <br> Credits: %d <br> Rehearsal Chips: %d </html>", pstats[0], pstats[1], pstats[2], pstats[3]);
+        this.playerInfo.setText(displayText);
+
+
+    }
+
+    public void disableMenu(){
+
+    }
+
+    public void setManager(GameManager manager){
+        this.manager = manager;
+        displayPlayerStats();
+    }
+
+    public void setBoundsScaled(JLabel label, int x, int y, int width, int height) {   
+        int scaledWidth = (int) (width * SCALE_WIDTH);
+        int scaledHeight = (int) (height * SCALE_HEIGHT);   
+        ImageIcon icon = (ImageIcon) label.getIcon(); 
+        Image resizedImage = icon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+        icon = new ImageIcon(resizedImage);
+        label.setIcon(icon);
+        label.setBounds((int) (x * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
+    }
+
 
   
   // This class implements Mouse Events
@@ -136,17 +192,28 @@ public class Gooey extends JFrame {
       // Code for the different button clicks
       public void mouseClicked(MouseEvent e) {
          
+        //String[] args = new String[];
+
          if (e.getSource()== bAct){
-            playerlabel.setVisible(true);
-            System.out.println("Acting is Selected\n");
+            //playerlabel.setVisible(true);
+            //System.out.println("Acting is Selected\n");
+            manager.parseAction(new String[]{"act"} );
          }
          else if (e.getSource()== bRehearse){
             //System.out.println("Rehearse is Selected\n");
-
+            manager.parseAction(new String[]{"rehearse"} );
          }
          else if (e.getSource()== bMove){
-            System.out.println("Move is Selected\n");
-         }         
+            //System.out.println("Move is Selected\n");
+         }
+         else if(e.getSource() == bUpgrade){
+            //not this simple! need to prompt player for money vs credits and what rank
+            //manager.parseAction(new String[]{"upgrade"});
+         }else if(e.getSource() == bEnd){
+            manager.parseAction(new String[]{"end"} );
+         }
+         displayPlayerStats();
+
       }
       public void mousePressed(MouseEvent e) {
       }

@@ -138,6 +138,11 @@ public class GameManager {
         this.gui.displayCurrentPlayerInfo(player.getPlayerNum(), player.getRank(), player.getMoney(), player.getCredits(), player.getRehearsalChipCount());
     }
 
+    public int[] getPlayerStats() {
+        Player player = this.getCurrentPlayer(); 
+        return new int[] {(player.getPlayerNum()), player.getMoney(), player.getCredits(), player.getRehearsalChipCount()};
+    }
+
     // resolve the "act" action a player may take
     public void act(Player player, String roomName){
         // check if they can even act rn
@@ -560,5 +565,7 @@ public class GameManager {
         //print to gui
         gui.displayWinners(winners);
     }
+
+    
 
 }
