@@ -14,6 +14,9 @@ import java.awt.event.*;
 
 public class Gooey extends JFrame {
 
+  final double WIDTH = 1.5;
+  final double HEIGHT = 1.5;
+
   // JLabels
   JLabel boardlabel;
   JLabel cardlabel;
@@ -41,12 +44,20 @@ public class Gooey extends JFrame {
       
        // Create the JLayeredPane to hold the display, cards, dice and buttons
        bPane = getLayeredPane();
+       Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+       bPane.setMaximumSize(screenSize);
     
        // Create the deadwood board
        boardlabel = new JLabel();
+       int width = (int)(screenSize.getWidth() / WIDTH);
+       int height = (int)(screenSize.getHeight() / HEIGHT);
+       Dimension bounds = new Dimension(width, height);
+       boardlabel.setSize(bounds);
        ImageIcon icon =  new ImageIcon("../Images/board.jpg");
+       Image resizedImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+       icon = new ImageIcon(resizedImage);
        boardlabel.setIcon(icon); 
-       boardlabel.setBounds(0,0,icon.getIconWidth(),icon.getIconHeight());
+       //boardlabel.setBounds(0,0,icon.getIconWidth(),icon.getIconHeight());
       
        // Add the board to the lowest layer
        bPane.add(boardlabel, new Integer(0));
@@ -74,7 +85,7 @@ public class Gooey extends JFrame {
        playerlabel.setIcon(pIcon);
        //playerlabel.setBounds(114,227,pIcon.getIconWidth(),pIcon.getIconHeight());  
        playerlabel.setBounds(114,227,46,46);
-       playerlabel.setVisible(false);
+       playerlabel.setVisible(true);
        bPane.add(playerlabel,new Integer(3));
       
        // Create the Menu for action buttons
