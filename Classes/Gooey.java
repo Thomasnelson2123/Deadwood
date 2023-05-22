@@ -40,6 +40,9 @@ public class Gooey extends JFrame {
   
   // JLayered Pane
   JLayeredPane bPane;
+
+  //board icon
+  ImageIcon icon;
   
   // Constructor
   
@@ -58,7 +61,7 @@ public class Gooey extends JFrame {
        // Create the deadwood board
        boardlabel = new JLabel();
        //boardlabel.setSize(bounds);
-       ImageIcon icon =  new ImageIcon("../Images/board.jpg");
+       this.icon =  new ImageIcon("../Images/board.jpg");
        // set the scale width and height such that everything is scaled to the screen size
        SCALE_HEIGHT*= screenSize.getHeight() / icon.getIconHeight();
        SCALE_WIDTH*= screenSize.getWidth() / icon.getIconWidth();
@@ -131,14 +134,11 @@ public class Gooey extends JFrame {
        bEnd.setBounds(icon.getIconWidth()+10, 180,100, 20);
        bEnd.addMouseListener(new boardMouseListener());
 
-       String[] test = {"boo", "b"};
-       moveChoices = new JComboBox<>(test);
-       moveChoices.setSelectedIndex(-1);
-       bEnd.setBackground(Color.white);
+       moveChoices = new JComboBox<>();
+       moveChoices.setBackground(Color.white);
        moveChoices.setBounds(icon.getIconWidth()+10, 210,100, 20);
-       moveChoices.addMouseListener(new boardMouseListener());
 
-
+       updateMoveSelection();
 
        // Place the action buttons in the top layer
        bPane.add(bAct, new Integer(2));
@@ -164,9 +164,18 @@ public class Gooey extends JFrame {
 
     }
 
-    public void disableMenu(){
-
-    }
+   public void updateMoveSelection() {
+      String[] test = {"boo", "b"};
+      moveChoices = new JComboBox<>(test);
+      moveChoices.setSelectedIndex(-1);
+      bEnd.setBackground(Color.white);
+      moveChoices.setBounds(this.icon.getIconWidth()+10, 210,100, 20);
+      moveChoices.addMouseListener(new boardMouseListener());
+      moveChoices.addActionListener(e -> {
+         String selectedChoice = (String) moveChoices.getSelectedItem();
+         System.out.println("Selected choice: " + selectedChoice);
+      });
+   }
 
     public void setManager(GameManager manager){
         this.manager = manager;
