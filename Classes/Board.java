@@ -310,12 +310,6 @@ public class Board {
         }
     }
 
-    public String[] getAdjacentRoomNames(Player player){
-        String targetRoomName = getPlayerRoom(player.getPlayerNum());
-        Room targetRoom = getRoom(targetRoomName);
-        return targetRoom.getAdjacentRoomNames();
-    }
-
     public String[] availableRoles(Player player){
         String targetRoomName = getPlayerRoom(player.getPlayerNum());
 
@@ -343,6 +337,43 @@ public class Board {
         }
 
         return returnList;
+    }
+
+    public String[][] getOffCardRoleDims() {
+        ArrayList<String[]> offCardRoles = new ArrayList<>();
+        for (Room room: this.rooms.values()) {
+            Role[] roles = room.getRoles();
+            if (roles == null) {
+                continue;
+            }
+            for (int j = 0; j < roles.length; j++) {
+                int[] dims = roles[j].getDims();
+                offCardRoles.add(new String[] {roles[j].getName(), Integer.toString(dims[0]), Integer.toString(dims[1]),
+                    Integer.toString(dims[2]), Integer.toString(dims[3])});
+            }
+        }
+        String[][] offCardRoleInfo = new String[offCardRoles.size()][5];
+        for (int i = 0; i < offCardRoles.size(); i++) {
+            offCardRoleInfo[i] = offCardRoles.get(i);
+        }
+        return offCardRoleInfo;
+    }
+
+    public String[][] getOnCardRoleDims() {
+        ArrayList<String[]> onCardRoles = new ArrayList<>();
+        for (Scene s: this.scenes.values()) {
+            Role[] roles = s.getRoles();
+            for (int j = 0; j < roles.length; j++) {
+                int[] dims = roles[j].getDims();
+                onCardRoles.add(new String[] {roles[j].getName(), Integer.toString(dims[0]), Integer.toString(dims[1]),
+                    Integer.toString(dims[2]), Integer.toString(dims[3])});
+            }
+        }
+        String[][] onCardSceneInfo = new String[onCardRoles.size()][5];
+        for (int i = 0; i < onCardRoles.size(); i++) {
+            onCardSceneInfo[i] = onCardRoles.get(i);
+        }
+        return onCardSceneInfo;
     }
 
 

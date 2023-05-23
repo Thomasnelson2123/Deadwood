@@ -10,6 +10,7 @@ public class GameManager {
     private Player[] players;
     private Bank bank;
     private GUI gui;
+    private Gooey gui2;
 
     private Player currentPlayer;
     private int day;
@@ -23,6 +24,7 @@ public class GameManager {
         this.board = board;
         this.players = players;
         this.gui = new GUI();
+        this.gui2 = new Gooey();
         this.day = 1;
         this.scenesLeft = 10;
         this.rand = rand;
@@ -235,22 +237,23 @@ public class GameManager {
         String playerRoom = board.getPlayerRoom(player.getPlayerNum());
         // player is already working a role, cannot take another
         if (player.isWorking()) {
-            this.gui.alreadyWorking();
+            this.gui2.alreadyWorking();
         }
         //if shot counters = 0, this scene has already been completed
         else if(board.getShotCounters(playerRoom)[0] == 0){
             if (playerRoom.equalsIgnoreCase("Trailer") || playerRoom.equalsIgnoreCase("Office")) {
-                this.gui.scenelessRoom();
+                this.gui2.scenelessRoom();
             }
             else {
-                this.gui.noShotCounters();
+                this.gui2.noShotCounters();
             }
         }
         else {
-            String response = this.gui.takeRole();
+            String response = this.gui2.takeRole();
             takeRole(response, player);
         }
     }
+
 
     // resolve the "take role" action a player may take
     public void takeRole(String role, Player player){
@@ -258,7 +261,7 @@ public class GameManager {
         String playerRoom = board.getPlayerRoom(player.getPlayerNum());
         // role isn't in same room as player, they can't take that role
         if (!board.isRoleInRoom(playerRoom, role)) {
-            this.gui.roleNotInRoom();
+            this.gui2.roleNotInRoom();
         }
         // role IS in room, but it isn't available
         else if (!board.isRoleAvailable(role)) {
@@ -566,14 +569,17 @@ public class GameManager {
         gui.displayWinners(winners);
     }
 
-    // given a player, returns all adjacent rooms in their current room
-    public String[] getAdjacentRoomNames(Player player){
-        return board.getAdjacentRoomNames(player);
-    }
-
     // given a player, returns all available roles in their current room
     public String[] getAllAvailableRoles(Player player){
         return board.availableRoles(player);
+    }
+
+    public String[][] getOnCardRoleDims() {
+        return this.board.getOnCardRoleDims();
+    }
+
+    public String[][] getOffCardRoleDims() {
+        return this.board.getOffCardRoleDims();
     }
 
 }
