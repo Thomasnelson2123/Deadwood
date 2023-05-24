@@ -8,15 +8,29 @@ import java.util.ArrayList;
 
 public class Gooey extends JFrame {
 
+    String PREFIX = "../Images/";
+
     double SCALE_HEIGHT = 0.8;
     double SCALE_WIDTH = 0.8;
+
+    int TRAILER_X = 991;
+    int TRAILER_Y = 248;
+
+    int DICE_SIZE = 46;
+
+    int CARD_W = 205;
+    int CARD_H = 115;
+
+    int BOARD_LAYER = 0;
+    int CARD_LAYER = 1;
+    int PLAYER_LAYER = 2;
+    int BUTTON_LAYER = 3;
     GameManager manager;
 
 
     // JLabels
     JLabel boardlabel;
     JLabel cardlabel;
-    JLabel playerlabel;
     JLabel mLabel;
     JLabel playerInfo;
 
@@ -30,8 +44,8 @@ public class Gooey extends JFrame {
     JButton bCancel;
 
     //JComboBox
-    JComboBox moveChoices;
-    JComboBox roleChoices;
+    //JComboBox moveChoices;
+    //JComboBox roleChoices;
 
     // JLayered Pane
     JLayeredPane bPane;
@@ -43,6 +57,11 @@ public class Gooey extends JFrame {
 
     // ArrayList of role buttons
     ArrayList<RoleButton> roleButtons = new ArrayList<RoleButton>();
+
+    // ArrayList of move buttons
+    ArrayList<MoveButton> moveButtons = new ArrayList<MoveButton>();
+
+    ArrayList<PlayerDice> playerDices = new ArrayList<PlayerDice>();
 
     //maybe hold a string that has whatever button the user selected? idk
     public String roleChoice = "";
@@ -64,7 +83,7 @@ public class Gooey extends JFrame {
         // Create the deadwood board
         boardlabel = new JLabel();
         //boardlabel.setSize(bounds);
-        this.icon =  new ImageIcon("../Images/board.jpg");
+        this.icon =  new ImageIcon(PREFIX + "board.jpg");
         // set the scale width and height such that everything is scaled to the screen size
         SCALE_HEIGHT*= screenSize.getHeight() / icon.getIconHeight();
         SCALE_WIDTH*= screenSize.getWidth() / icon.getIconWidth();
@@ -92,16 +111,8 @@ public class Gooey extends JFrame {
         bPane.add(cardlabel, new Integer(1));
 
 
-
-
         // Add a dice to represent a player. 
         // Role for Crusty the prospector. The x and y co-ordiantes are taken from Board.xml file
-        playerlabel = new JLabel();
-        ImageIcon pIcon = new ImageIcon("../Images/r2.png");
-        playerlabel.setIcon(pIcon);
-        this.setBoundsScaled(playerlabel, 114, 227, 46, 46); 
-        playerlabel.setVisible(true);
-        bPane.add(playerlabel,new Integer(3));
 
         // Create the Menu for action buttons
         mLabel = new JLabel("MENU");
@@ -146,13 +157,13 @@ public class Gooey extends JFrame {
 
 
         // Place the action buttons in the top layer
-        bPane.add(bAct, 2);
-        bPane.add(bRehearse, 2);
-        bPane.add(bMove, 2);
-        bPane.add(bWork, 2);
-        bPane.add(bUpgrade, 2);
-        bPane.add(bEnd, 2);
-        bPane.add(bCancel, 2);
+        bPane.add(bAct, BUTTON_LAYER);
+        bPane.add(bRehearse, BUTTON_LAYER);
+        bPane.add(bMove, BUTTON_LAYER);
+        bPane.add(bWork, BUTTON_LAYER);
+        bPane.add(bUpgrade, BUTTON_LAYER);
+        bPane.add(bEnd, BUTTON_LAYER);
+        bPane.add(bCancel, BUTTON_LAYER);
 
         playerInfo = new JLabel("test");
 
@@ -173,7 +184,7 @@ public class Gooey extends JFrame {
 
     // this method creates a button for each role in the game. They are default set unavailable
     // they are added to an arraylist of roleButtons
-    public void configureRoleButtons() {
+    public void createRoleButtons() {
         String[][] onCardRoles = this.manager.getOnCardRoleDims();
         String[][] offCardRoles = this.manager.getOffCardRoleDims();
 
@@ -189,17 +200,34 @@ public class Gooey extends JFrame {
             RoleButton rb = new RoleButton(info[0], Integer.parseInt(info[1]), Integer.parseInt(info[2]),
             Integer.parseInt(info[3]), Integer.parseInt(info[4]));
             rb.setAvailable(false);
-            bPane.setLayer(rb, 2);
-            this.bPane.add(rb, 2);
+            bPane.setLayer(rb, BUTTON_LAYER);
+            this.bPane.add(rb, BUTTON_LAYER);
             roleButtons.add(rb);
 
+        }
+    }
+
+    public void createMoveButtons() {
+        String[][] roomInfo = this.manager.getRoomDims();
+        for (String[] info: roomInfo) {
+            MoveButton mb = new MoveButton(Integer.parseInt(info[1]), Integer.parseInt(info[2]), 
+            Integer.parseInt(info[3]), Integer.parseInt(info[4]), info[0]);
+            mb.setAvailable(false);
+            mb.addMouseListener(new boardMouseListener());
+            bPane.setLayer(mb, BUTTON_LAYER);
+            this.bPane.add(mb, BUTTON_LAYER);
+            moveButtons.add(mb);
+            
         }
     }
 
     public void setManager(GameManager manager){
         this.manager = manager;
         displayPlayerStats();
-        configureRoleButtons();
+        createRoleButtons();
+        createMoveButtons();
+        initPlayers();
+
     }
 
     // unfinished, can basically disregard this
@@ -215,6 +243,21 @@ public class Gooey extends JFrame {
         icon = new ImageIcon(resizedImage);
         label.setIcon(icon);
         label.setBounds((int) (x * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
+    }
+
+    public void initPlayers() {
+        String[] playerColors = new String[] {"r", "b", "y", "g", "c", "p", "v", "w"};
+        int numPlayers = this.manager.getNumberOfPlayers();
+        for (int i = 0; i < numPlayers; i++) {
+            String file = PREFIX + playerColors[i] + "1.png";
+            // set at trailer as well
+            PlayerDice player = new PlayerDice(file, DICE_SIZE, DICE_SIZE);
+            this.setBoundsScaled(player, TRAILER_X, TRAILER_Y, DICE_SIZE, DICE_SIZE);
+            this.bPane.setLayer(player, PLAYER_LAYER);
+            this.playerDices.add(player);
+            this.bPane.add(player, PLAYER_LAYER);
+        }
+
     }
 
     //#region JOptionPane notifications
@@ -233,6 +276,36 @@ public class Gooey extends JFrame {
 
     public void alreadyWorking() {
         JOptionPane.showMessageDialog(bPane,"Already working a role! Cannot leave until the scene has wrapped,");
+    }
+
+    public void moveOverrideFailed() {
+        JOptionPane.showMessageDialog(bPane,"Error: move could not be completed!");
+    }
+
+    public void cannotMoveWithRole() {
+        JOptionPane.showMessageDialog(bPane,"You cannot leave your role until you wrap!");
+    }
+
+    public void actionAlreadyTaken(){
+        JOptionPane.showMessageDialog(bPane,"Too many actions!");
+    }
+
+    // to call, enableAdjacentRooms(manager.getPlayerRoomNeighbors);
+    public void enableAdjacentRooms(String[] adjacentRooms){
+        for(int i = 0; i < moveButtons.size(); i++){
+            for(int j = 0; j < adjacentRooms.length; j++){
+                String buttonName = moveButtons.get(i).getRoomName();
+                if(adjacentRooms[j].equals(buttonName)){
+                    moveButtons.get(i).setAvailable(true);
+                }
+            }
+        }
+    }
+
+    public void disableAllRoomButtons(){
+        for(MoveButton button : moveButtons){
+            button.setAvailable(false);
+        }
     }
 
     //#endregion
@@ -256,7 +329,10 @@ public class Gooey extends JFrame {
                 manager.parseAction(new String[]{"rehearse"} );
             }
             else if (e.getSource()== bMove){
-                //System.out.println("Move is Selected\n");
+                boolean canMove = manager.checkCanMove();
+                if (canMove) {
+                    enableAdjacentRooms(manager.getPlayerRoomNeighbors());
+                }
             }
             else if(e.getSource() == bUpgrade){
                 //not this simple! need to prompt player for money vs credits and what rank
@@ -267,10 +343,19 @@ public class Gooey extends JFrame {
             else if (e.getSource() == bWork) {
                 manager.parseAction(new String[] {"work"});
             }
-            else if (e.getSource() == bCancel) {
-                roleChoice = "cancel";
+            else if (e.getSource() == bCancel) {    
+                disableAllRoomButtons();
+            }
+
+            for (MoveButton b: moveButtons) {
+                if (e.getSource() == b) {
+                    String targetRoomName = b.getRoomName();
+                    manager.movePlayerOverride(targetRoomName);
+                    disableAllRoomButtons();
+                }
             }
             displayPlayerStats();
+            updateAllPlayerdice();
 
         }
         public void mousePressed(MouseEvent e) {
@@ -281,6 +366,9 @@ public class Gooey extends JFrame {
         }
         public void mouseExited(MouseEvent e) {
         }
+
+
+
     }
 
     class RoleButton extends JButton{
@@ -298,7 +386,7 @@ public class Gooey extends JFrame {
             this.localX = x;
             this.localY = y;
             setPositon(0, 0);
-            ImageIcon icon = new ImageIcon("../Images/button.png");
+            ImageIcon icon = new ImageIcon(PREFIX + "button.png");
             this.setContentAreaFilled(false);
             this.setIcon(icon);
             //this.setOpaque(false);
@@ -323,6 +411,80 @@ public class Gooey extends JFrame {
             return this.roleName;
         }
 
+    }
+
+    class MoveButton extends JButton {
+
+        private String roomName;
+
+        public MoveButton(int x, int y, int w, int h, String roomName) {
+            this.roomName = roomName;
+            int scaledWidth = (int) (w * SCALE_WIDTH);
+            int scaledHeight = (int) (h * SCALE_HEIGHT);   
+            this.setBounds((int) (x  * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
+            ImageIcon icon = new ImageIcon(PREFIX + "movehere.png"); 
+            this.setContentAreaFilled(false);
+            this.setIcon(icon);
+        }
+
+        public String getRoomName() {
+            return this.roomName;
+        }
+
+        public boolean getAvailable() {
+            return this.isEnabled();
+        }
+
+        public void setAvailable(boolean isAvailable) {
+            this.setEnabled(isAvailable);
+            this.setVisible(isAvailable);
+        }
+
+    }
+
+    public void updateAllPlayerdice(){
+        
+        for(int i = 0; i < playerDices.size(); i++){
+            int xDiff = DICE_SIZE + 1;
+            int yDiff = DICE_SIZE + 1;
+            
+            int[] dims = manager.getPlayerDims(i);
+
+            int xOffset = 0;
+            int yOffset = 0;
+
+            if(!manager.playerIsWorking(i)){
+                xOffset = xDiff * (i % 4);
+                yOffset = yDiff * (i / 4) + CARD_H;
+            }
+
+            playerDices.get(i).setCoordinates(dims[0], dims[1], xOffset, yOffset);
+        }
+    }
+
+    public class PlayerDice extends JLabel{
+
+        private int x;
+        private int y;
+        private int w;
+        private int h;
+
+        public PlayerDice(String fileName, int w, int h) {
+            ImageIcon icon = new ImageIcon(fileName);
+            this.setIcon(icon);
+            this.setVisible(true);
+            this.w = (int) (w * SCALE_WIDTH);
+            this.h = (int) (h * SCALE_HEIGHT);
+        }
+
+        // move the player somewhere on the board
+        // offsets are for when a player is not on a role
+        public void setCoordinates(int x, int y, int xOffset, int yOffset) {
+
+            this.x = (int) ((x + xOffset)  * SCALE_WIDTH);
+            this.y = (int) ((y + yOffset) * SCALE_HEIGHT);  
+            this.setBounds(this.x,this.y, this.w, this.h);
+        }
     }
 
 } 

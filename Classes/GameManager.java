@@ -53,30 +53,6 @@ public class GameManager {
 
     }
 
-    // the main loop for taking turns between players in the game
-    public void mainLoop(){
-        while(true) {
-            // if the current player is working, they shouldn't be able to move
-            /*
-            if (this.currentPlayer.isWorking()) {
-                this.currentPlayer.setCanMove(false);
-            }*/
-            String[] args = gui.parseUserInput();
-            // if null: user entered gui only command, manager needs not do anything
-            if (args != null) {
-                parseAction(args);
-            }
-            // end day + end of game
-            if (this.scenesLeft == 1 && this.day >= maxDays) {
-                determineWinner();
-                System.exit(1);
-            }
-            else if (this.scenesLeft == 1 && this.day < maxDays) {
-                nextDay();
-            }
-
-        }
-    }
 
     //takes user input from the gui and determines which functions should be run
     //also supplies each function with the relevant data it needs to function
@@ -133,6 +109,10 @@ public class GameManager {
         this.scenesLeft = 10;
         this.gui.nextDay();
         this.day++;
+    }
+
+    public int getNumberOfPlayers() {
+        return this.players.length;
     }
 
     //returns player info to gui for display with "who" command
@@ -308,6 +288,29 @@ public class GameManager {
                 }
             }
         }
+    }
+
+    public boolean checkCanMove() {
+        if(!canCurrentPlayerMove()){
+            if(isCurrentPlayerWorking()){
+                gui2.cannotMoveWithRole();
+            }else{
+                gui2.actionAlreadyTaken();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    // moves the player without checking whether or not the move is valid at all
+    public void movePlayerOverride(String destination){
+        boolean success = board.movePlayer(currentPlayer.getPlayerNum(), destination);
+        if(!success){
+            gui2.moveOverrideFailed();
+        }else{
+            currentPlayer.setAvailableActions(new Action[] {Action.Work, Action.Upgrade});
+        }
+        
     }
 
     // resolve the "upgrade rank" action a player may take
@@ -580,6 +583,28 @@ public class GameManager {
 
     public String[][] getOffCardRoleDims() {
         return this.board.getOffCardRoleDims();
+    }
+
+    public String[][] getRoomDims() {
+        return this.board.getAllRoomDims();
+    }
+
+    // return specified player's dims
+    public int[] getPlayerDims(int playerNum){
+        Player p = players[playerNum];
+        if(p.isWorking()){
+            // return dims of their role
+            return this.board.getPlayerRoleDims(playerNum);
+        }else{
+            // return dims of room, plus offset
+            // offset is handled in board method
+            return this.board.getPlayerRoomDims(playerNum);
+        }
+    }
+
+    public boolean playerIsWorking(int playerNum){
+        Player p = players[playerNum];
+        return p.isWorking();
     }
 
 }

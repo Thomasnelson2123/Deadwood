@@ -283,6 +283,26 @@ public class Board {
 
     }
 
+    public int[] getPlayerRoleDims(int playerNum){
+        Role currentRole = this.playerRoles[playerNum];
+        if (currentRole == null) {
+            return null;
+        }
+
+        return currentRole.getDims();
+    }
+
+    public int[] getPlayerRoomDims(int playerNum){
+        //int xOffset = 47;
+        //int yOffset = 0;
+        
+        String targetRoomName = playerLocations[playerNum];
+        Room r = getRoom(targetRoomName);
+        int[] dims = r.getDims();
+
+        return dims;
+    }
+
     // removes one shot counter from the scene card in the given room
     public void removeShotCounter(String currentRoom){
         Room room = this.getRoom(currentRoom);
@@ -374,6 +394,20 @@ public class Board {
             onCardSceneInfo[i] = onCardRoles.get(i);
         }
         return onCardSceneInfo;
+    }
+
+    public String[][] getAllRoomDims() {
+        String[][] data = new String[this.rooms.size()][5];
+        int i = 0;
+        for (Room r: this.rooms.values()) {
+            int[] dims = r.getDims();
+            String name = r.getRoomName();
+            String[] info = new String[] {name, Integer.toString(dims[0]), Integer.toString(dims[1]),
+                 Integer.toString(dims[2]), Integer.toString(dims[3])};
+            data[i] = info;
+            i++;
+        }
+        return data;
     }
 
 

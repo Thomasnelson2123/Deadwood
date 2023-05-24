@@ -97,4 +97,8 @@ public class Room {
         return this.hasScene;
     }
 
+    public int[] getDims() {
+        return dims;
+    }
+
 }

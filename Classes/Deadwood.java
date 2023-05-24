@@ -37,7 +37,6 @@ public class Deadwood{
         gui.setManager(manager);
 
         // main gameplay loop
-        manager.mainLoop();
 
         
         // Take input from the user about number of players
