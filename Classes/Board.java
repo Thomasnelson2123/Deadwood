@@ -332,6 +332,7 @@ public class Board {
 
     public String[] availableRoles(Player player){
         String targetRoomName = getPlayerRoom(player.getPlayerNum());
+        int playerRank = player.getRank();
 
         String[][] roomRoles = getRoomRoles(targetRoomName);
         String[][] sceneRoles = getSceneRoles(targetRoomName);
@@ -341,12 +342,18 @@ public class Board {
         // populate arraylist with non occupied roles
         for(int i = 0; i < roomRoles.length; i++){
             if(roomRoles[i][4].equals("false")){ //if occupied == false
-                tempList.add(roomRoles[i][0]);
+                int currentRoleDifficulty = Integer.parseInt(roomRoles[i][2]);
+                if(playerRank >= currentRoleDifficulty){
+                    tempList.add(roomRoles[i][0]);
+                }
             }
         }
         for(int i = 0; i < sceneRoles.length; i++){
             if(sceneRoles[i][4].equals("false")){ //if occupied == false
-                tempList.add(sceneRoles[i][0]);
+                int currentRoleDifficulty = Integer.parseInt(sceneRoles[i][2]);
+                if(playerRank >= currentRoleDifficulty){
+                    tempList.add(sceneRoles[i][0]);
+                }
             }
         }
 

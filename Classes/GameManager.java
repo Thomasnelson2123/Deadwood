@@ -302,6 +302,27 @@ public class GameManager {
         return true;
     }
 
+    public boolean checkCanWork(){
+        String playerRoom = board.getPlayerRoom(getCurrentPlayerNum());
+        
+        if(!canCurrentPlayerWork()){
+            gui2.actionAlreadyTaken();
+        }else if(isCurrentPlayerWorking()){
+            gui2.alreadyWorking();
+        }else if(board.getShotCounters(playerRoom)[0] == 0){
+            if (playerRoom.equalsIgnoreCase("Trailer") || playerRoom.equalsIgnoreCase("Office")) {
+                this.gui2.scenelessRoom();
+            }
+            else {
+                this.gui2.noShotCounters();
+            }
+        }else{
+            return true;
+        }
+
+        return false;
+    }
+
     // moves the player without checking whether or not the move is valid at all
     public void movePlayerOverride(String destination){
         boolean success = board.movePlayer(currentPlayer.getPlayerNum(), destination);
@@ -311,6 +332,13 @@ public class GameManager {
             currentPlayer.setAvailableActions(new Action[] {Action.Work, Action.Upgrade});
         }
         
+    }
+
+    public void takeRoleOverride(String roleName){
+        Player player = getCurrentPlayer();
+        player.setAvailableActions(new Action[] {Action.None});
+        this.board.setPlayerRole(roleName, player.getPlayerNum());
+        player.setWorking(true);
     }
 
     // resolve the "upgrade rank" action a player may take
@@ -350,7 +378,6 @@ public class GameManager {
         }else{
             gui.upgradeSuccess();
         }
-        
     }
 
     // resolve all actions when a scene ends. This includes:
@@ -507,6 +534,10 @@ public class GameManager {
 
     public boolean canCurrentPlayerMove() {
         return this.isActionAvailable(Action.Move, this.currentPlayer);
+    }
+
+    public boolean canCurrentPlayerWork() {
+        return this.isActionAvailable(Action.Work, this.currentPlayer);
     }
 
     public boolean isCurrentPlayerWorking() {

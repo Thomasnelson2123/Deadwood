@@ -48,7 +48,8 @@ public class Deadwood{
         ParseXML parser = new ParseXML();
         String cwd = System.getProperty("user.dir");
         String[] path = cwd.split("\\\\");
-        String prefix = "../XML_Files/";
+        //String prefix = "../XML_Files/";
+        String prefix = "XML_Files/";
         System.out.println(prefix);
         // because for somer reason when Deadwood.java is run, it doesn't recognize
         // it is in the classes directory... but sometimes it does?

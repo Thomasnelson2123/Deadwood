@@ -8,7 +8,8 @@ import java.util.ArrayList;
 
 public class Gooey extends JFrame {
 
-    String PREFIX = "../Images/";
+    //String PREFIX = "../Images/";
+    String PREFIX = "Images/";
 
     double SCALE_HEIGHT = 0.8;
     double SCALE_WIDTH = 0.8;
@@ -192,6 +193,7 @@ public class Gooey extends JFrame {
             RoleButton rb = new RoleButton(info[0], Integer.parseInt(info[1]), Integer.parseInt(info[2]),
             Integer.parseInt(info[3]), Integer.parseInt(info[4]));
             rb.setAvailable(false);
+            rb.addMouseListener(new boardMouseListener());
             this.bPane.add(rb, -1);
             roleButtons.add(rb);
         }
@@ -200,6 +202,7 @@ public class Gooey extends JFrame {
             RoleButton rb = new RoleButton(info[0], Integer.parseInt(info[1]), Integer.parseInt(info[2]),
             Integer.parseInt(info[3]), Integer.parseInt(info[4]));
             rb.setAvailable(false);
+            rb.addMouseListener(new boardMouseListener());
             bPane.setLayer(rb, BUTTON_LAYER);
             this.bPane.add(rb, BUTTON_LAYER);
             roleButtons.add(rb);
@@ -265,6 +268,10 @@ public class Gooey extends JFrame {
         JOptionPane.showMessageDialog(bPane,"The specified role is not in your current room. You can only take on a role if you are near it!");
     }
 
+    public void noValidRoles() {
+        JOptionPane.showMessageDialog(bPane,"There are no valid roles for you in this room! Try going to a room with unoccupied roles that have lower difficulties.");
+    }
+
     public void scenelessRoom() {
         JOptionPane.showMessageDialog(bPane,"This room has no scenes for you to act. What are you doing?? \n Does thou not know? Does thou not see? There are no scenes!");
 
@@ -308,6 +315,31 @@ public class Gooey extends JFrame {
         }
     }
 
+
+    public void enableRolesInRoom(){
+        String[] availableRoles = manager.getAllAvailableRoles(manager.getCurrentPlayer());
+        if(availableRoles.length == 0){
+            // no available roles! cry about it
+            noValidRoles();
+        }else{
+            // enable all valid role buttons
+            for(int i = 0; i < roleButtons.size(); i++){
+                for(int j = 0; j < availableRoles.length; j++){
+                    String buttonName = roleButtons.get(i).getRoleName();
+                    if(availableRoles[j].equals(buttonName)){
+                        roleButtons.get(i).setAvailable(true);
+                    }
+                }
+            }
+        }
+    }
+
+    public void disableAllRoleButtons(){
+        for(RoleButton button : roleButtons){
+            button.setAvailable(false);
+        }
+    }
+
     //#endregion
 
     // This class implements Mouse Events
@@ -341,10 +373,14 @@ public class Gooey extends JFrame {
                 manager.parseAction(new String[]{"end"} );
             }
             else if (e.getSource() == bWork) {
-                manager.parseAction(new String[] {"work"});
+                boolean canWork = manager.checkCanWork();
+                if(canWork){
+                    enableRolesInRoom();
+                }
             }
             else if (e.getSource() == bCancel) {    
                 disableAllRoomButtons();
+                disableAllRoleButtons();
             }
 
             for (MoveButton b: moveButtons) {
@@ -354,6 +390,16 @@ public class Gooey extends JFrame {
                     disableAllRoomButtons();
                 }
             }
+
+            for (RoleButton b: roleButtons) {
+                if (e.getSource() == b) {
+                    String targetRoleName = b.getRoleName();
+                    manager.takeRoleOverride(targetRoleName);
+                    disableAllRoleButtons();
+                    System.out.println("big penis");
+                }
+            }
+
             displayPlayerStats();
             updateAllPlayerdice();
 
