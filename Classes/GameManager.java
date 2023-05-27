@@ -143,7 +143,7 @@ public class GameManager {
             bank.actingReward(actSuccess, isOnCard, player);
 
             //notify gui about whether or not acting was a success
-            gui.actNotification(actSuccess);
+            gui2.actNotification(actSuccess);
 
             //remove shot counter
             if(actSuccess){
@@ -154,7 +154,7 @@ public class GameManager {
             if(board.getShotCounters(roomName)[0] == 0){
                 //pays players, removes their roles
                 this.sceneWrap(roomName);
-                gui.sceneWrap();
+                gui2.sceneWrap();
 
                 // remove scene card
                 this.board.removeCard(roomName);
@@ -168,7 +168,7 @@ public class GameManager {
 
         }
         else {
-            this.gui.cannotAct();
+            this.gui2.cannotAct();
         }
         
     }
@@ -195,21 +195,20 @@ public class GameManager {
                 if(playerRehearsalChips < budget-1){
                     //success
                     player.addRehearsalChip();
-                    gui.addRehearsalChip(player.getRehearsalChipCount());
+                    gui2.addRehearsalChip(player.getRehearsalChipCount());
                     player.setAvailableActions(new Action[] {Action.None});
                 }else{
-                    gui.tooManyChips();
+                    gui2.tooManyChips();
                 }
             }
 
         }
         else if (player.isWorking()){
-            gui.actionAlreadyTaken();
+            gui2.actionAlreadyTaken();
         }  
         else {
-            gui.chipsButNoRole();
+            gui2.chipsButNoRole();
         }
-        //int max_rehearsal_chips = difficulty - 1
     }
 
     public void work(Player player) {

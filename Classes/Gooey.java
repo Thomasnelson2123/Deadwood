@@ -297,6 +297,34 @@ public class Gooey extends JFrame {
         JOptionPane.showMessageDialog(bPane,"Too many actions!");
     }
 
+    public void actNotification(boolean actSuccess){
+        if(actSuccess){
+            JOptionPane.showMessageDialog(bPane,"Act success!");
+        }else{
+            JOptionPane.showMessageDialog(bPane,"Act failed.");
+        }
+    }
+
+    public void sceneWrap(){
+        JOptionPane.showMessageDialog(bPane,"That's a wrap! Scene completed.");
+    }
+
+    public void cannotAct() {
+        JOptionPane.showMessageDialog(bPane,"You can't act right now!");
+    }
+
+    public void addRehearsalChip(int numChips){
+        JOptionPane.showMessageDialog(bPane,"<html>You have gained a rehearsal chip!<br>Your chips: "+numChips+"</html>");
+    }
+
+    public void tooManyChips(){
+        JOptionPane.showMessageDialog(bPane,"You already have the max amount of rehearsal chips!");
+    }
+
+    public void chipsButNoRole(){
+        JOptionPane.showMessageDialog(bPane,"You cannot rehearse if you don't have a role!");
+    }
+
     // to call, enableAdjacentRooms(manager.getPlayerRoomNeighbors);
     public void enableAdjacentRooms(String[] adjacentRooms){
         for(int i = 0; i < moveButtons.size(); i++){
@@ -396,7 +424,6 @@ public class Gooey extends JFrame {
                     String targetRoleName = b.getRoleName();
                     manager.takeRoleOverride(targetRoleName);
                     disableAllRoleButtons();
-                    System.out.println("big penis");
                 }
             }
 
