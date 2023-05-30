@@ -240,7 +240,7 @@ public class Gooey extends JFrame {
             for(int j = 0; j < 2; j++){
                 boolean isUsingMoney = j == 0;
                 UpgradeButton ub = new UpgradeButton(startX + (xDiff*j), startY+(yDiff*i), buttonWidth, buttonHeight, isUsingMoney, i + 2);
-                ub.setAvailable(true);
+                ub.setAvailable(false);
                 ub.addMouseListener(new boardMouseListener());
                 bPane.setLayer(ub, BUTTON_LAYER);
                 this.bPane.add(ub, BUTTON_LAYER);
@@ -278,9 +278,9 @@ public class Gooey extends JFrame {
         String[] playerColors = new String[] {"r", "b", "y", "g", "c", "p", "v", "w"};
         int numPlayers = this.manager.getNumberOfPlayers();
         for (int i = 0; i < numPlayers; i++) {
-            String file = PREFIX + playerColors[i] + "1.png";
+            String color = playerColors[i];
             // set at trailer as well
-            PlayerDice player = new PlayerDice(file, DICE_SIZE, DICE_SIZE);
+            PlayerDice player = new PlayerDice(color, DICE_SIZE, DICE_SIZE);
             this.setBoundsScaled(player, TRAILER_X, TRAILER_Y, DICE_SIZE, DICE_SIZE);
             this.bPane.setLayer(player, PLAYER_LAYER);
             this.playerDices.add(player);
@@ -351,6 +351,27 @@ public class Gooey extends JFrame {
         JOptionPane.showMessageDialog(bPane,"You cannot rehearse if you don't have a role!");
     }
 
+    public void notInOffice() {
+        JOptionPane.showMessageDialog(bPane,"You must be in the office to upgrade!");
+    }
+
+    public void cannotAffordAnyUpgrades() {
+        JOptionPane.showMessageDialog(bPane,"No buttons have been enabled because you either cant afford them or are too high rank!");
+    }
+
+    public void upgradeSuccess(){
+        JOptionPane.showMessageDialog(bPane,"Upgrade successful!");
+    }
+
+    public void invalidUpgrade(boolean badInput){
+        // these should basically never run, they are here for debugging
+        if(badInput){
+            JOptionPane.showMessageDialog(bPane,"<html>Upgrade failed!<br>Invalid input</html>");
+        }else{
+            System.out.println("<html>Upgrade failed!<br>You do not possess enough resources to upgrade.</html>");
+        }
+    }
+
     // to call, enableAdjacentRooms(manager.getPlayerRoomNeighbors);
     public void enableAdjacentRooms(String[] adjacentRooms){
         for(int i = 0; i < moveButtons.size(); i++){
@@ -366,6 +387,43 @@ public class Gooey extends JFrame {
     public void disableAllRoomButtons(){
         for(MoveButton button : moveButtons){
             button.setAvailable(false);
+        }
+    }
+
+    public void enableUpgradeButtons(){
+        boolean isInOffice = manager.playerIsInOffice();
+        if(!isInOffice){
+            notInOffice();
+        }else{
+            int playerRank = manager.getCurrentPlayer().getRank();
+            boolean canAffordAny = false;
+            for(UpgradeButton b : upgradeButtons){
+                int myRank = b.getTargetRank();
+                boolean isMoney = b.getIsUsingMoney();
+
+                int dosh = 0;
+                if(isMoney){
+                    dosh = manager.getCurrentPlayer().getMoney();
+                }else{
+                    dosh = manager.getCurrentPlayer().getCredits();
+                }
+
+                boolean canAfford = manager.canAfford(dosh,isMoney,myRank);
+                if(playerRank < myRank && canAfford){
+                    b.setAvailable(true);
+                    canAffordAny = true;
+                }
+            }
+
+            if(!canAffordAny){
+                cannotAffordAnyUpgrades();
+            }
+        }
+    }
+
+    public void disableUpgradeButtons(){
+        for(UpgradeButton b : upgradeButtons){
+            b.setAvailable(false);
         }
     }
 
@@ -421,8 +479,7 @@ public class Gooey extends JFrame {
                 }
             }
             else if(e.getSource() == bUpgrade){
-                //not this simple! need to prompt player for money vs credits and what rank
-                //manager.parseAction(new String[]{"upgrade"});
+                enableUpgradeButtons();
             }else if(e.getSource() == bEnd){
                 manager.parseAction(new String[]{"end"} );
             }
@@ -435,6 +492,7 @@ public class Gooey extends JFrame {
             else if (e.getSource() == bCancel) {    
                 disableAllRoomButtons();
                 disableAllRoleButtons();
+                disableUpgradeButtons();
             }
 
             for (MoveButton b: moveButtons) {
@@ -450,6 +508,21 @@ public class Gooey extends JFrame {
                     String targetRoleName = b.getRoleName();
                     manager.takeRoleOverride(targetRoleName);
                     disableAllRoleButtons();
+                }
+            }
+
+            for(UpgradeButton b: upgradeButtons){
+                if (e.getSource() == b) {
+                    String targetRank = Integer.toString(b.getTargetRank());
+                    String isMoney = "";
+                    if(b.getIsUsingMoney()){
+                        isMoney = "money";
+                    }else{
+                        isMoney = "credits";
+                    }
+                    manager.upgradeRank(targetRank,isMoney,manager.getCurrentPlayer());
+                    playerDices.get(manager.getCurrentPlayerNum() - 1).updateIcon(b.getTargetRank());
+                    disableUpgradeButtons();
                 }
             }
 
@@ -602,9 +675,12 @@ public class Gooey extends JFrame {
         private int y;
         private int w;
         private int h;
+        private String color;
 
-        public PlayerDice(String fileName, int w, int h) {
-            ImageIcon icon = new ImageIcon(fileName);
+        public PlayerDice(String color, int w, int h) {
+            this.color = color;
+            String file = PREFIX + color + "1.png";
+            ImageIcon icon = new ImageIcon(file);
             this.setIcon(icon);
             this.setVisible(true);
             this.w = (int) (w * SCALE_WIDTH);
@@ -618,6 +694,17 @@ public class Gooey extends JFrame {
             this.x = (int) ((x + xOffset)  * SCALE_WIDTH);
             this.y = (int) ((y + yOffset) * SCALE_HEIGHT);  
             this.setBounds(this.x,this.y, this.w, this.h);
+        }
+
+        public void updateIcon(int num) {
+            if (num > 6 || num < 1) {
+                JOptionPane.showMessageDialog(bPane,"Curious, the application attemped to set a player rank to something that shouldn't be possible. Quite curious indeed");
+                return;
+            }
+            String fileName = PREFIX + color + num + ".png";
+            ImageIcon icon = new ImageIcon(fileName);
+            this.setIcon(icon);
+            this.setVisible(true);
         }
     }
 

@@ -115,6 +115,10 @@ public class GameManager {
         return this.players.length;
     }
 
+    public boolean playerIsInOffice(){
+        return this.board.playerInOffice(this.currentPlayer.getPlayerNum());
+    }
+
     //returns player info to gui for display with "who" command
     public void displayPlayerStats(Player player) {  
         this.gui.displayCurrentPlayerInfo(player.getPlayerNum(), player.getRank(), player.getMoney(), player.getCredits(), player.getRehearsalChipCount());
@@ -348,11 +352,11 @@ public class GameManager {
             targetRankInt = Integer.parseInt(targetRank.trim());
         } catch (Exception e) {
             //System.out.println("cant parse int");
-            gui.invalidUpgrade(true);
+            gui2.invalidUpgrade(true);
             return;
         }
         if (targetRankInt > 6 || targetRankInt < player.getRank()) {
-            gui.invalidUpgrade(false);
+            gui2.invalidUpgrade(false);
             return;
         }
         
@@ -373,9 +377,9 @@ public class GameManager {
         }
 
         if(!success){
-            gui.invalidUpgrade(badInput);
+            gui2.invalidUpgrade(badInput);
         }else{
-            gui.upgradeSuccess();
+            gui2.upgradeSuccess();
         }
     }
 
@@ -507,6 +511,21 @@ public class GameManager {
     public String[] getPlayerRoomNeighbors() {
         String room = board.getPlayerRoom(getCurrentPlayerNum());
         return board.getRoomNeighbors(room);
+    }
+
+    public boolean canAfford(int dosh,boolean isMoney,int myRank){
+        int cost = 9999; //init really high so if it crashes you cant afford anything
+        try{
+            if(isMoney){
+                cost = bank.getUpgradeCostMoney(myRank);
+            }else{
+                cost = bank.getUpgradeCostCredits(myRank);
+            }
+        }catch(Exception ex){
+            
+        }
+
+        return dosh >= cost;
     }
 
     // ends the current player's turn
