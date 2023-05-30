@@ -64,6 +64,8 @@ public class Gooey extends JFrame {
 
     ArrayList<PlayerDice> playerDices = new ArrayList<PlayerDice>();
 
+    ArrayList<UpgradeButton> upgradeButtons = new ArrayList<UpgradeButton>();
+
     //maybe hold a string that has whatever button the user selected? idk
     public String roleChoice = "";
 
@@ -224,11 +226,35 @@ public class Gooey extends JFrame {
         }
     }
 
+    public void createUpgradeButtons(){
+        int startX = 98;
+        int startY = 542;
+        
+        int xDiff = 49;
+        int yDiff = 22;
+
+        int buttonWidth = 19;
+        int buttonHeight = 19;
+
+        for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 2; j++){
+                boolean isUsingMoney = j == 0;
+                UpgradeButton ub = new UpgradeButton(startX + (xDiff*j), startY+(yDiff*i), buttonWidth, buttonHeight, isUsingMoney, i + 2);
+                ub.setAvailable(true);
+                ub.addMouseListener(new boardMouseListener());
+                bPane.setLayer(ub, BUTTON_LAYER);
+                this.bPane.add(ub, BUTTON_LAYER);
+                upgradeButtons.add(ub);
+            }
+        }
+    }
+
     public void setManager(GameManager manager){
         this.manager = manager;
         displayPlayerStats();
         createRoleButtons();
         createMoveButtons();
+        createUpgradeButtons();
         initPlayers();
 
     }
@@ -513,6 +539,41 @@ public class Gooey extends JFrame {
             this.setVisible(isAvailable);
         }
 
+    }
+
+    class UpgradeButton extends JButton{
+        
+        private boolean isUsingMoney;
+        private int targetRank;
+        //private int cost; //resolved in upgrade thing
+
+        public UpgradeButton(int x, int y, int w, int h, boolean isUsingMoney, int targetRank) {
+            this.isUsingMoney = isUsingMoney;
+            this.targetRank = targetRank;
+            int scaledWidth = (int) (w * SCALE_WIDTH);
+            int scaledHeight = (int) (h * SCALE_HEIGHT);   
+            this.setBounds((int) (x  * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
+            ImageIcon icon = new ImageIcon(PREFIX + "button.png"); 
+            this.setContentAreaFilled(false);
+            this.setIcon(icon);
+        }
+
+        public boolean getIsUsingMoney(){
+            return this.isUsingMoney;
+        }
+
+        public int getTargetRank() {
+            return this.targetRank;
+        }
+
+        public boolean getAvailable() {
+            return this.isEnabled();
+        }
+
+        public void setAvailable(boolean isAvailable) {
+            this.setEnabled(isAvailable);
+            this.setVisible(isAvailable);
+        }
     }
 
     public void updateAllPlayerdice(){
