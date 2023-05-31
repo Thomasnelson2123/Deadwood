@@ -286,7 +286,7 @@ public class Gooey extends JFrame {
             this.playerDices.add(player);
             this.bPane.add(player, PLAYER_LAYER);
         }
-
+        updateAllPlayerdice();
     }
 
     //#region JOptionPane notifications
@@ -475,6 +475,8 @@ public class Gooey extends JFrame {
             else if (e.getSource()== bMove){
                 boolean canMove = manager.checkCanMove();
                 if (canMove) {
+                    disableAllRoleButtons();
+                    disableUpgradeButtons();
                     enableAdjacentRooms(manager.getPlayerRoomNeighbors());
                 }
             }
@@ -486,6 +488,7 @@ public class Gooey extends JFrame {
             else if (e.getSource() == bWork) {
                 boolean canWork = manager.checkCanWork();
                 if(canWork){
+                    disableAllRoomButtons();
                     enableRolesInRoom();
                 }
             }
