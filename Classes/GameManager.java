@@ -26,7 +26,7 @@ public class GameManager {
         this.gui = new GUI();
         this.gui2 = new Gooey();
         this.day = 1;
-        this.scenesLeft = 2;
+        this.scenesLeft = 10;
         this.rand = rand;
 
         if (players.length < 4) {
@@ -160,8 +160,6 @@ public class GameManager {
                 this.sceneWrap(roomName);
                 gui2.sceneWrap();
 
-                // remove scene card
-                this.board.removeCard(roomName);
 
                 // make it so you cannot take a role in this room
                 // this is handled in takerole - you cant take a role in a room
@@ -351,7 +349,6 @@ public class GameManager {
         try {
             targetRankInt = Integer.parseInt(targetRank.trim());
         } catch (Exception e) {
-            //System.out.println("cant parse int");
             gui2.invalidUpgrade(true);
             return;
         }
@@ -372,7 +369,6 @@ public class GameManager {
             isUsingMoney = false;
             success = this.bank.upgradePlayer(player,targetRankInt,isUsingMoney);
         }else{
-            //System.out.println("it isnt moni or credit");
             badInput = true;
         }
 
@@ -442,6 +438,8 @@ public class GameManager {
         // set all off card role's occupied vars to false
         //Role[] roles = board.getRoom(room).getRoles();
 
+        // remove scene card
+        this.board.removeCard(room);
         if(scenesLeft == 1){
             nextDay();
             if(this.day > this.maxDays){
@@ -635,13 +633,16 @@ public class GameManager {
         return board.availableRoles(player);
     }
 
+    // get the dimensions (x,y,w,h) of all on-card roles
     public String[][] getOnCardRoleDims() {
         return this.board.getOnCardRoleDims();
     }
 
+    
     public String[][] getOffCardRoleDims() {
         return this.board.getOffCardRoleDims();
     }
+
 
     public String[][] getRoomDims() {
         return this.board.getAllRoomDims();
@@ -679,6 +680,7 @@ public class GameManager {
         return returnThis;
     }
 
+    // returns if player is on a job
     public boolean playerIsWorking(int playerNum){
         Player p = players[playerNum];
         return p.isWorking();
@@ -688,12 +690,22 @@ public class GameManager {
         return board.getAllCurrentScenesInfo();
     }
 
+
     public String[] getRoleNamesFromRoomFileName(String fileName){
         return board.getRoleNamesFromRoomFileName(fileName);
     }
 
+    // returns the an array with info for every shot counter
+    // [i][0] - boolean, whether or not shotcounter has a shot
+    // [i][1] - name of room
+    // [i][2-5] - dims of shotcounter (x,y,w,h)
     public String[][] getShotCounterDims(String room) {
         return board.getShotCounterDims(room);
+    }
+
+    // returns current day
+    public int getDayNumber() {
+        return this.day;
     }
 
 }

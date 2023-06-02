@@ -103,8 +103,7 @@ public class Board {
     //gets the roles inside of a room that are NOT on the scene card
     public String[][] getRoomRoles(String room) {
         Room r = getRoom(room);
-        Scene s = r.getSceneCard();
-        if (!r.canHaveScene() || s == null) {
+        if (!r.canHaveScene()) {
             return null;
         }
         
@@ -363,6 +362,9 @@ public class Board {
         return returnList;
     }
 
+    // returns dimensions of all offcard roles as String[][]
+    // [i][0] - roleName
+    // [i][1-3] - x,y,w/h
     public String[][] getOffCardRoleDims() {
         ArrayList<String[]> offCardRoles = new ArrayList<>();
         for (Room room: this.rooms.values()) {
@@ -383,6 +385,9 @@ public class Board {
         return offCardRoleInfo;
     }
 
+    // returns dimensions of all oncard roles as String[][]
+    // [i][0] - roleName
+    // [i][1-3] - x,y,w/h
     public String[][] getOnCardRoleDims() {
         ArrayList<String[]> onCardRoles = new ArrayList<>();
         for (Scene s: this.scenes.values()) {
@@ -400,6 +405,9 @@ public class Board {
         return onCardSceneInfo;
     }
 
+    // gets the dimensions of each room and returns it as a String[][] 
+    // [i][0] - room name
+    // [i][1-3] - x,y,w,h
     public String[][] getAllRoomDims() {
         String[][] data = new String[this.rooms.size()][5];
         int i = 0;

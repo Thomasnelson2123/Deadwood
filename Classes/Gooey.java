@@ -159,7 +159,7 @@ public class Gooey extends JFrame {
 
         playerInfo = new JLabel("test");
 
-        playerInfo.setBounds(icon.getIconWidth()+10,240,130, 120);
+        playerInfo.setBounds(icon.getIconWidth()+10,240,130, 160);
         //playerInfo.
         bPane.add(playerInfo);
 
@@ -168,11 +168,14 @@ public class Gooey extends JFrame {
 
     public void displayPlayerStats() {
         int[] pstats = this.manager.getPlayerStats();
-        String displayText = String.format("<html><h2>Current Player: %d</h2>Money: %d <br> Credits: %d <br> Rehearsal Chips: %d </html>", pstats[0], pstats[1], pstats[2], pstats[3]);
+        int day = this.manager.getDayNumber();
+        String displayText = String.format("<html><h2> Day %d </h2><h2>Current Player: %d</h2>Money: %d <br> Credits: %d <br> Rehearsal Chips: %d </html>", day, pstats[0], pstats[1], pstats[2], pstats[3]);
         this.playerInfo.setText(displayText);
 
 
     }
+
+    //#region Create Buttons and Labels 
 
     // this method creates a button for each role in the game. They are default set unavailable
     // they are added to an arraylist of roleButtons
@@ -279,6 +282,8 @@ public class Gooey extends JFrame {
         return shotLabels;
     }
 
+    //#endregion
+
     public void updateShotCounters() {
         for (MoveButton mb: this.moveButtons) {
             String roomName = mb.roomName;
@@ -289,19 +294,18 @@ public class Gooey extends JFrame {
                 continue;
             }
             for (int i = 0; i < shotCounterInfo[1]; i++) {
-                if (shots[i] == null)
-                    continue;
                 shots[i].setShot(true);
             }
             for (int i = 0; i < removedShots; i++) {
-                if (shots[i] == null) {
-                    continue;
-                }
                 shots[i].setShot(false);
             }
         }
     }
 
+    // Gooey does not start with the manager, but is rather passed in
+    // after the number of players are selected
+    // because of this, any call that requires the manager class during initialization of the game
+    // goes here
     public void setManager(GameManager manager){
         this.manager = manager;
         displayPlayerStats();
@@ -343,113 +347,6 @@ public class Gooey extends JFrame {
             this.bPane.add(player, PLAYER_LAYER);
         }
     }
-
-    //#region JOptionPane notifications
-    public void roleNotInRoom() {
-        JOptionPane.showMessageDialog(bPane,"The specified role is not in your current room. You can only take on a role if you are near it!");
-    }
-
-    public void noValidRoles() {
-        JOptionPane.showMessageDialog(bPane,"There are no valid roles for you in this room! Try going to a room with unoccupied roles that have lower difficulties.");
-    }
-
-    public void scenelessRoom() {
-        JOptionPane.showMessageDialog(bPane,"This room has no scenes for you to act. What are you doing?? \n Does thou not know? Does thou not see? There are no scenes!");
-
-    }
-
-    public void noShotCounters(){
-        JOptionPane.showMessageDialog(bPane, "You cannot join this scene as it has already been completed!");
-    }
-
-    public void alreadyWorking() {
-        JOptionPane.showMessageDialog(bPane,"Already working a role! Cannot leave until the scene has wrapped,");
-    }
-
-    public void moveOverrideFailed() {
-        JOptionPane.showMessageDialog(bPane,"Error: move could not be completed!");
-    }
-
-    public void cannotMoveWithRole() {
-        JOptionPane.showMessageDialog(bPane,"You cannot leave your role until you wrap!");
-    }
-
-    // the greatest method of all time
-    public void actionAlreadyTaken(){
-        JOptionPane.showMessageDialog(bPane,"Too many actions!");
-    }
-
-    public void nextDay() {
-        JOptionPane.showMessageDialog(bPane,"All but one scene has wrapped. It is a new day!");
-    }
-
-    public void displayWinners(ArrayList<Player> winners){
-        String printme = "";
-        if(winners.size() == 1){
-            int winnerNum = winners.get(0).getPlayerNum();
-            printme += "The winner is: Player "+winnerNum+"! Congratulations!";
-        }
-        else{
-            printme += "There has been a tie! The winners are: ";
-            for(int i = 0; i < winners.size(); i++){
-                int winnerNum = winners.get(i).getPlayerNum();
-                printme += "Player "+winnerNum+", ";
-            }
-            printme += "Congratulations!";
-        }
-
-        JOptionPane.showMessageDialog(bPane,printme);
-    }
-
-    public void actNotification(boolean actSuccess){
-        if(actSuccess){
-            JOptionPane.showMessageDialog(bPane,"Act success!");
-        }else{
-            JOptionPane.showMessageDialog(bPane,"Act failed.");
-        }
-    }
-
-    public void sceneWrap(){
-        JOptionPane.showMessageDialog(bPane,"That's a wrap! Scene completed.");
-    }
-
-    public void cannotAct() {
-        JOptionPane.showMessageDialog(bPane,"You can't act right now!");
-    }
-
-    public void addRehearsalChip(int numChips){
-        JOptionPane.showMessageDialog(bPane,"<html>You have gained a rehearsal chip!<br>Your chips: "+numChips+"</html>");
-    }
-
-    public void tooManyChips(){
-        JOptionPane.showMessageDialog(bPane,"You already have the max amount of rehearsal chips!");
-    }
-
-    public void chipsButNoRole(){
-        JOptionPane.showMessageDialog(bPane,"You cannot rehearse if you don't have a role!");
-    }
-
-    public void notInOffice() {
-        JOptionPane.showMessageDialog(bPane,"You must be in the office to upgrade!");
-    }
-
-    public void cannotAffordAnyUpgrades() {
-        JOptionPane.showMessageDialog(bPane,"No buttons have been enabled because you either cant afford them or are too high rank!");
-    }
-
-    public void upgradeSuccess(){
-        JOptionPane.showMessageDialog(bPane,"Upgrade successful!");
-    }
-
-    public void invalidUpgrade(boolean badInput){
-        // these should basically never run, they are here for debugging
-        if(badInput){
-            JOptionPane.showMessageDialog(bPane,"<html>Upgrade failed!<br>Invalid input</html>");
-        }else{
-            JOptionPane.showMessageDialog(bPane,"<html>Upgrade failed!<br>You do not possess enough resources to upgrade.</html>");
-        }
-    }
-
     // to call, enableAdjacentRooms(manager.getPlayerRoomNeighbors);
     public void enableAdjacentRooms(String[] adjacentRooms){
         for(int i = 0; i < moveButtons.size(); i++){
@@ -529,224 +426,6 @@ public class Gooey extends JFrame {
     public void disableAllRoleButtons(){
         for(RoleButton button : roleButtons){
             button.setAvailable(false);
-        }
-    }
-
-    //#endregion
-
-    // This class implements Mouse Events
-
-    class boardMouseListener implements MouseListener{
-
-        // Code for the different button clicks
-        public void mouseClicked(MouseEvent e) {
-
-            //String[] args = new String[];
-
-            if (e.getSource()== bAct){
-                //playerlabel.setVisible(true);
-                //System.out.println("Acting is Selected\n");
-                manager.parseAction(new String[]{"act"} );
-                updateShotCounters();
-            }
-            else if (e.getSource()== bRehearse){
-                //System.out.println("Rehearse is Selected\n");
-                manager.parseAction(new String[]{"rehearse"} );
-            }
-            else if (e.getSource()== bMove){
-                boolean canMove = manager.checkCanMove();
-                if (canMove) {
-                    disableAllRoleButtons();
-                    disableUpgradeButtons();
-                    enableAdjacentRooms(manager.getPlayerRoomNeighbors());
-                }
-            }
-            else if(e.getSource() == bUpgrade){
-                enableUpgradeButtons();
-            }else if(e.getSource() == bEnd){
-                disableAllRoomButtons();
-                disableAllRoleButtons();
-                disableUpgradeButtons();
-                manager.parseAction(new String[]{"end"} );
-            }
-            else if (e.getSource() == bWork) {
-                boolean canWork = manager.checkCanWork();
-                if(canWork){
-                    disableAllRoomButtons();
-                    enableRolesInRoom();
-                }
-            }
-            else if (e.getSource() == bCancel) {    
-                disableAllRoomButtons();
-                disableAllRoleButtons();
-                disableUpgradeButtons();
-            }
-
-            for (MoveButton b: moveButtons) {
-                if (e.getSource() == b) {
-                    String targetRoomName = b.getRoomName();
-                    manager.movePlayerOverride(targetRoomName);
-                    disableAllRoomButtons();
-                }
-            }
-
-            for (RoleButton b: roleButtons) {
-                if (e.getSource() == b) {
-                    String targetRoleName = b.getRoleName();
-                    manager.takeRoleOverride(targetRoleName);
-                    disableAllRoleButtons();
-                }
-            }
-
-            for(UpgradeButton b: upgradeButtons){
-                if (e.getSource() == b) {
-                    String targetRank = Integer.toString(b.getTargetRank());
-                    String isMoney = "";
-                    if(b.getIsUsingMoney()){
-                        isMoney = "money";
-                    }else{
-                        isMoney = "credits";
-                    }
-                    manager.upgradeRank(targetRank,isMoney,manager.getCurrentPlayer());
-                    playerDices.get(manager.getCurrentPlayerNum() - 1).updateIcon(b.getTargetRank());
-                    disableUpgradeButtons();
-                }
-            }
-
-            displayPlayerStats();
-            updateAllPlayerdice();
-            updateAllSceneCards();
-
-        }
-        public void mousePressed(MouseEvent e) {
-        }
-        public void mouseReleased(MouseEvent e) {
-        }
-        public void mouseEntered(MouseEvent e) {
-        }
-        public void mouseExited(MouseEvent e) {
-        }
-
-
-
-    }
-
-    class RoleButton extends JButton{
-
-        private String roleName;
-        private int localX;
-        private int localY;
-        private int w;
-        private int h;
-
-        public RoleButton(String roleName, int x, int y, int w, int h) {
-            this.roleName = roleName;
-            this.w = w;
-            this.h = h;
-            this.localX = x;
-            this.localY = y;
-            setPositon(0, 0);
-            ImageIcon icon = new ImageIcon(PREFIX + "button.png");
-            this.setContentAreaFilled(false);
-            this.setIcon(icon);
-            //this.setOpaque(false);
-        }
-
-        public void setPositon(int cardX, int cardY) {   
-            int scaledWidth = (int) (this.w * SCALE_WIDTH);
-            int scaledHeight = (int) (this.h * SCALE_HEIGHT);   
-            this.setBounds((int) ((this.localX + cardX) * SCALE_WIDTH), (int) ((this.localY+ cardY) * SCALE_HEIGHT), scaledWidth, scaledHeight);
-        }
-
-        public void setAvailable(boolean isAvailable) {
-            this.setEnabled(isAvailable);
-            this.setVisible(isAvailable);
-        }
-
-        public boolean getAvailable() {
-            return this.isEnabled();
-        }
-
-        public String getRoleName() {
-            return this.roleName;
-        }
-
-        public int[] getLocalCoords(){
-            int[] coords = new int[2];
-            coords[0] = this.localX;
-            coords[1] = this.localY;
-            return coords;
-        }
-
-    }
-
-    class MoveButton extends JButton {
-
-        private String roomName;
-        private ShotLabel[] shots;
-
-        public MoveButton(int x, int y, int w, int h, String roomName, ShotLabel[] shots) {
-            this.roomName = roomName;
-            int scaledWidth = (int) (w * SCALE_WIDTH);
-            int scaledHeight = (int) (h * SCALE_HEIGHT);   
-            this.setBounds((int) (x  * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
-            ImageIcon icon = new ImageIcon(PREFIX + "movehere.png"); 
-            this.setContentAreaFilled(false);
-            this.setIcon(icon);
-            this.shots = shots;
-        }
-
-        public String getRoomName() {
-            return this.roomName;
-        }
-
-        public boolean getAvailable() {
-            return this.isEnabled();
-        }
-
-        public void setAvailable(boolean isAvailable) {
-            this.setEnabled(isAvailable);
-            this.setVisible(isAvailable);
-        }
-
-        public ShotLabel[] getShots() {
-            return shots;
-        }
-
-    }
-
-    class UpgradeButton extends JButton{
-        
-        private boolean isUsingMoney;
-        private int targetRank;
-        //private int cost; //resolved in upgrade thing
-
-        public UpgradeButton(int x, int y, int w, int h, boolean isUsingMoney, int targetRank) {
-            this.isUsingMoney = isUsingMoney;
-            this.targetRank = targetRank;
-            int scaledWidth = (int) (w * SCALE_WIDTH);
-            int scaledHeight = (int) (h * SCALE_HEIGHT);   
-            this.setBounds((int) (x  * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
-            ImageIcon icon = new ImageIcon(PREFIX + "button.png"); 
-            this.setContentAreaFilled(false);
-            this.setIcon(icon);
-        }
-
-        public boolean getIsUsingMoney(){
-            return this.isUsingMoney;
-        }
-
-        public int getTargetRank() {
-            return this.targetRank;
-        }
-
-        public boolean getAvailable() {
-            return this.isEnabled();
-        }
-
-        public void setAvailable(boolean isAvailable) {
-            this.setEnabled(isAvailable);
-            this.setVisible(isAvailable);
         }
     }
 
@@ -858,6 +537,334 @@ public class Gooey extends JFrame {
         }
     }
 
+    //#region JOptionPane notifications
+    public void roleNotInRoom() {
+        JOptionPane.showMessageDialog(bPane,"The specified role is not in your current room. You can only take on a role if you are near it!");
+    }
+
+    public void noValidRoles() {
+        JOptionPane.showMessageDialog(bPane,"There are no valid roles for you in this room! Try going to a room with unoccupied roles that have lower difficulties.");
+    }
+
+    public void scenelessRoom() {
+        JOptionPane.showMessageDialog(bPane,"This room has no scenes for you to act. What are you doing?? \n Does thou not know? Does thou not see? There are no scenes!");
+
+    }
+
+    public void noShotCounters(){
+        JOptionPane.showMessageDialog(bPane, "You cannot join this scene as it has already been completed!");
+    }
+
+    public void alreadyWorking() {
+        JOptionPane.showMessageDialog(bPane,"Already working a role! Cannot leave until the scene has wrapped,");
+    }
+
+    public void moveOverrideFailed() {
+        JOptionPane.showMessageDialog(bPane,"Error: move could not be completed!");
+    }
+
+    public void cannotMoveWithRole() {
+        JOptionPane.showMessageDialog(bPane,"You cannot leave your role until you wrap!");
+    }
+
+    // the greatest method of all time
+    public void actionAlreadyTaken(){
+        JOptionPane.showMessageDialog(bPane,"Too many actions!");
+    }
+
+    public void nextDay() {
+        JOptionPane.showMessageDialog(bPane,"All but one scene has wrapped. It is a new day!");
+    }
+
+    public void actNotification(boolean actSuccess){
+        if(actSuccess){
+            JOptionPane.showMessageDialog(bPane,"Act success!");
+        }else{
+            JOptionPane.showMessageDialog(bPane,"Act failed.");
+        }
+    }
+
+    public void sceneWrap(){
+        JOptionPane.showMessageDialog(bPane,"That's a wrap! Scene completed.");
+    }
+
+    public void cannotAct() {
+        JOptionPane.showMessageDialog(bPane,"You can't act right now!");
+    }
+
+    public void addRehearsalChip(int numChips){
+        JOptionPane.showMessageDialog(bPane,"<html>You have gained a rehearsal chip!<br>Your chips: "+numChips+"</html>");
+    }
+
+    public void tooManyChips(){
+        JOptionPane.showMessageDialog(bPane,"You already have the max amount of rehearsal chips!");
+    }
+
+    public void chipsButNoRole(){
+        JOptionPane.showMessageDialog(bPane,"You cannot rehearse if you don't have a role!");
+    }
+
+    public void notInOffice() {
+        JOptionPane.showMessageDialog(bPane,"You must be in the office to upgrade!");
+    }
+
+    public void cannotAffordAnyUpgrades() {
+        JOptionPane.showMessageDialog(bPane,"No buttons have been enabled because you either cant afford them or are too high rank!");
+    }
+
+    public void upgradeSuccess(){
+        JOptionPane.showMessageDialog(bPane,"Upgrade successful!");
+    }
+
+    public void invalidUpgrade(boolean badInput){
+        // these should basically never run, they are here for debugging
+        if(badInput){
+            JOptionPane.showMessageDialog(bPane,"<html>Upgrade failed!<br>Invalid input</html>");
+        }else{
+            JOptionPane.showMessageDialog(bPane,"<html>Upgrade failed!<br>You do not possess enough resources to upgrade.</html>");
+        }
+    }
+
+    //#endregion
+
+    public void displayWinners(ArrayList<Player> winners){
+        String printme = "";
+        if(winners.size() == 1){
+            int winnerNum = winners.get(0).getPlayerNum();
+            printme += "The winner is: Player "+winnerNum+"! Congratulations!";
+        }
+        else{
+            printme += "There has been a tie! The winners are: ";
+            for(int i = 0; i < winners.size(); i++){
+                int winnerNum = winners.get(i).getPlayerNum();
+                printme += "Player "+winnerNum+", ";
+            }
+            printme += "Congratulations!";
+        }
+
+        JOptionPane.showMessageDialog(bPane,printme);
+    }
+
+    
+
+    // This class implements Mouse Events
+
+    class boardMouseListener implements MouseListener{
+
+        // Code for the different button clicks
+        public void mouseClicked(MouseEvent e) {
+
+            //String[] args = new String[];
+
+            if (e.getSource()== bAct){
+                //playerlabel.setVisible(true);
+                //System.out.println("Acting is Selected\n");
+                manager.parseAction(new String[]{"act"} );
+                updateShotCounters();
+            }
+            else if (e.getSource()== bRehearse){
+                //System.out.println("Rehearse is Selected\n");
+                manager.parseAction(new String[]{"rehearse"} );
+            }
+            else if (e.getSource()== bMove){
+                boolean canMove = manager.checkCanMove();
+                if (canMove) {
+                    disableAllRoleButtons();
+                    disableUpgradeButtons();
+                    enableAdjacentRooms(manager.getPlayerRoomNeighbors());
+                }
+            }
+            else if(e.getSource() == bUpgrade){
+                enableUpgradeButtons();
+            }else if(e.getSource() == bEnd){
+                disableAllRoomButtons();
+                disableAllRoleButtons();
+                disableUpgradeButtons();
+                manager.parseAction(new String[]{"end"} );
+            }
+            else if (e.getSource() == bWork) {
+                boolean canWork = manager.checkCanWork();
+                if(canWork){
+                    disableAllRoomButtons();
+                    enableRolesInRoom();
+                }
+            }
+            else if (e.getSource() == bCancel) {    
+                disableAllRoomButtons();
+                disableAllRoleButtons();
+                disableUpgradeButtons();
+            }
+
+            for (MoveButton b: moveButtons) {
+                if (e.getSource() == b) {
+                    String targetRoomName = b.getRoomName();
+                    manager.movePlayerOverride(targetRoomName);
+                    disableAllRoomButtons();
+                }
+            }
+
+            for (RoleButton b: roleButtons) {
+                if (e.getSource() == b) {
+                    String targetRoleName = b.getRoleName();
+                    manager.takeRoleOverride(targetRoleName);
+                    disableAllRoleButtons();
+                }
+            }
+
+            for(UpgradeButton b: upgradeButtons){
+                if (e.getSource() == b) {
+                    String targetRank = Integer.toString(b.getTargetRank());
+                    String isMoney = "";
+                    if(b.getIsUsingMoney()){
+                        isMoney = "money";
+                    }else{
+                        isMoney = "credits";
+                    }
+                    manager.upgradeRank(targetRank,isMoney,manager.getCurrentPlayer());
+                    playerDices.get(manager.getCurrentPlayerNum() - 1).updateIcon(b.getTargetRank());
+                    disableUpgradeButtons();
+                }
+            }
+
+            displayPlayerStats();
+            updateAllPlayerdice();
+            updateAllSceneCards();
+
+        }
+        public void mousePressed(MouseEvent e) {
+        }
+        public void mouseReleased(MouseEvent e) {
+        }
+        public void mouseEntered(MouseEvent e) {
+        }
+        public void mouseExited(MouseEvent e) {
+        }
+
+
+
+    }
+    //#region Button and Label classes
+    class RoleButton extends JButton{
+
+        private String roleName;
+        private int localX;
+        private int localY;
+        private int w;
+        private int h;
+
+        public RoleButton(String roleName, int x, int y, int w, int h) {
+            this.roleName = roleName;
+            this.w = w;
+            this.h = h;
+            this.localX = x;
+            this.localY = y;
+            setPositon(0, 0);
+            ImageIcon icon = new ImageIcon(PREFIX + "button.png");
+            this.setContentAreaFilled(false);
+            this.setIcon(icon);
+            //this.setOpaque(false);
+        }
+
+        public void setPositon(int cardX, int cardY) {   
+            int scaledWidth = (int) (this.w * SCALE_WIDTH);
+            int scaledHeight = (int) (this.h * SCALE_HEIGHT);   
+            this.setBounds((int) ((this.localX + cardX) * SCALE_WIDTH), (int) ((this.localY+ cardY) * SCALE_HEIGHT), scaledWidth, scaledHeight);
+        }
+
+        public void setAvailable(boolean isAvailable) {
+            this.setEnabled(isAvailable);
+            this.setVisible(isAvailable);
+        }
+
+        public boolean getAvailable() {
+            return this.isEnabled();
+        }
+
+        public String getRoleName() {
+            return this.roleName;
+        }
+
+        public int[] getLocalCoords(){
+            int[] coords = new int[2];
+            coords[0] = this.localX;
+            coords[1] = this.localY;
+            return coords;
+        }
+
+    }
+
+    class MoveButton extends JButton {
+
+        private String roomName;
+        private ShotLabel[] shots;
+
+        public MoveButton(int x, int y, int w, int h, String roomName, ShotLabel[] shots) {
+            this.roomName = roomName;
+            int scaledWidth = (int) (w * SCALE_WIDTH);
+            int scaledHeight = (int) (h * SCALE_HEIGHT);   
+            this.setBounds((int) (x  * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
+            ImageIcon icon = new ImageIcon(PREFIX + "movehere.png"); 
+            this.setContentAreaFilled(false);
+            this.setIcon(icon);
+            this.shots = shots;
+        }
+
+        public String getRoomName() {
+            return this.roomName;
+        }
+
+        public boolean getAvailable() {
+            return this.isEnabled();
+        }
+
+        public void setAvailable(boolean isAvailable) {
+            this.setEnabled(isAvailable);
+            this.setVisible(isAvailable);
+        }
+
+        public ShotLabel[] getShots() {
+            return shots;
+        }
+
+    }
+
+    // class used for the upgrade buttons
+    class UpgradeButton extends JButton{
+        
+        private boolean isUsingMoney;
+        private int targetRank;
+        //private int cost; //resolved in upgrade thing
+
+        public UpgradeButton(int x, int y, int w, int h, boolean isUsingMoney, int targetRank) {
+            this.isUsingMoney = isUsingMoney;
+            this.targetRank = targetRank;
+            int scaledWidth = (int) (w * SCALE_WIDTH);
+            int scaledHeight = (int) (h * SCALE_HEIGHT);   
+            this.setBounds((int) (x  * SCALE_WIDTH), (int) (y * SCALE_HEIGHT), scaledWidth, scaledHeight);
+            ImageIcon icon = new ImageIcon(PREFIX + "button.png"); 
+            this.setContentAreaFilled(false);
+            this.setIcon(icon);
+        }
+
+        public boolean getIsUsingMoney(){
+            return this.isUsingMoney;
+        }
+
+        public int getTargetRank() {
+            return this.targetRank;
+        }
+
+        public boolean getAvailable() {
+            return this.isEnabled();
+        }
+
+        public void setAvailable(boolean isAvailable) {
+            this.setEnabled(isAvailable);
+            this.setVisible(isAvailable);
+        }
+    }
+
+    // class used to represent the player dice
     public class PlayerDice extends JLabel{
 
         private int x;
@@ -885,6 +892,7 @@ public class Gooey extends JFrame {
             this.setBounds(this.x,this.y, this.w, this.h);
         }
 
+        // used when upgrading
         public void updateIcon(int num) {
             if (num > 6 || num < 1) {
                 JOptionPane.showMessageDialog(bPane,"Curious, the application attemped to set a player rank to something that shouldn't be possible. Quite curious indeed");
@@ -958,6 +966,7 @@ public class Gooey extends JFrame {
 
     }
 
+    // this class holds information about ShotCounters for the GUI
     public class ShotLabel extends JLabel {
         private int x;
         private int y;
@@ -983,4 +992,5 @@ public class Gooey extends JFrame {
             return roomName;
         }
     }
+    //#endregion
 }
