@@ -293,9 +293,6 @@ public class Board {
     }
 
     public int[] getPlayerRoomDims(int playerNum){
-        //int xOffset = 47;
-        //int yOffset = 0;
-        
         String targetRoomName = playerLocations[playerNum];
         Room r = getRoom(targetRoomName);
         int[] dims = r.getDims();
@@ -417,5 +414,61 @@ public class Board {
         return data;
     }
 
+    public String[][] getAllCurrentScenesInfo(){
+        ArrayList<String> fileNames = new ArrayList<String>();
+        ArrayList<Boolean> isFlippedList = new ArrayList<Boolean>();
+        ArrayList<Integer> xCoordinates = new ArrayList<Integer>();
+        ArrayList<Integer> yCoordinates = new ArrayList<Integer>();
 
+        
+        for(Room r : rooms.values()){
+            if(r.canHaveScene()){
+                if(r.getShotsRemaining() > 0){
+                    Scene s = r.getSceneCard();
+
+                    if(s != null){
+                        fileNames.add(s.getFileName());
+                        isFlippedList.add(s.isFacingUp());
+                        int[] dims = r.getDims();
+                        xCoordinates.add(dims[0]);
+                        yCoordinates.add(dims[1]);
+                    }
+                }
+            }
+        }
+
+        //turn the arraylists into a returnable 2d array
+        String[][] data = new String[fileNames.size()][4];
+        for(int i = 0; i < data.length; i++){
+            data[i][0] = fileNames.get(i);
+            data[i][1] = Boolean.toString(isFlippedList.get(i));
+            data[i][2] = Integer.toString(xCoordinates.get(i));
+            data[i][3] = Integer.toString(yCoordinates.get(i));
+        }
+
+        return data;
+    }
+
+    // given only the filename of a scene, find that scene, then return the names of each role in that room
+    public String[] getRoleNamesFromRoomFileName(String fileName){
+
+        ArrayList<String> tempList = new ArrayList<String>();
+
+        for(Scene s: scenes.values()){
+            if(s.getFileName().equals(fileName)){
+                // we have found the target scene
+                // get the names of each role inside it
+
+                Role[] targetRoles = s.getRoles();
+                for(int i = 0; i < targetRoles.length; i++){
+                    tempList.add(targetRoles[i].getName());
+                }
+
+                break;
+            }
+        }
+
+        return tempList.toArray(new String[tempList.size()]);
+        
+    }
 }

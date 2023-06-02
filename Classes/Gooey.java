@@ -1,8 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
-import javax.imageio.ImageIO;
+
 import java.awt.event.*;
 import java.util.ArrayList;
 
@@ -64,6 +62,8 @@ public class Gooey extends JFrame {
 
     ArrayList<PlayerDice> playerDices = new ArrayList<PlayerDice>();
 
+    ArrayList<CardLabel> cards = new ArrayList<CardLabel>();
+
     ArrayList<UpgradeButton> upgradeButtons = new ArrayList<UpgradeButton>();
 
     //maybe hold a string that has whatever button the user selected? idk
@@ -102,17 +102,6 @@ public class Gooey extends JFrame {
 
         // Set the size of the GUI
         setSize(icon.getIconWidth()+200,icon.getIconHeight());
-
-        // Add a scene card to this room
-        cardlabel = new JLabel();
-        ImageIcon cIcon =  new ImageIcon("01.png");
-        //    cardlabel.setIcon(cIcon); 
-        //    cardlabel.setBounds(20 / WIDTH,65,cIcon.getIconWidth()+2,cIcon.getIconHeight());
-        //    cardlabel.setOpaque(true);
-
-        // Add the card to the lower layer
-        bPane.add(cardlabel, new Integer(1));
-
 
         // Add a dice to represent a player. 
         // Role for Crusty the prospector. The x and y co-ordiantes are taken from Board.xml file
@@ -196,8 +185,11 @@ public class Gooey extends JFrame {
             Integer.parseInt(info[3]), Integer.parseInt(info[4]));
             rb.setAvailable(false);
             rb.addMouseListener(new boardMouseListener());
-            this.bPane.add(rb, -1);
+            bPane.setLayer(rb,BUTTON_LAYER);
+            this.bPane.add(rb, BUTTON_LAYER);
             roleButtons.add(rb);
+
+            //System.out.println(info[0]);
         }
 
         for (String[] info: offCardRoles) {
@@ -209,6 +201,7 @@ public class Gooey extends JFrame {
             this.bPane.add(rb, BUTTON_LAYER);
             roleButtons.add(rb);
 
+            //System.out.println(info[0]);
         }
     }
 
@@ -249,6 +242,15 @@ public class Gooey extends JFrame {
         }
     }
 
+    public void createCards() {
+        for (int i = 1; i <= 40; i++) {
+            CardLabel card = new CardLabel(i + ".png", 205, 115);
+            bPane.setLayer(card, CARD_LAYER);
+            this.bPane.add(card);
+            this.cards.add(card);
+        }
+    }
+
     public void setManager(GameManager manager){
         this.manager = manager;
         displayPlayerStats();
@@ -256,7 +258,10 @@ public class Gooey extends JFrame {
         createMoveButtons();
         createUpgradeButtons();
         initPlayers();
-
+        updateAllPlayerdice();
+        createCards();
+        populateSceneCardButtonArray();
+        updateAllSceneCards();
     }
 
     // unfinished, can basically disregard this
@@ -286,7 +291,6 @@ public class Gooey extends JFrame {
             this.playerDices.add(player);
             this.bPane.add(player, PLAYER_LAYER);
         }
-        updateAllPlayerdice();
     }
 
     //#region JOptionPane notifications
@@ -319,8 +323,31 @@ public class Gooey extends JFrame {
         JOptionPane.showMessageDialog(bPane,"You cannot leave your role until you wrap!");
     }
 
+    // the greatest method of all time
     public void actionAlreadyTaken(){
         JOptionPane.showMessageDialog(bPane,"Too many actions!");
+    }
+
+    public void nextDay() {
+        JOptionPane.showMessageDialog(bPane,"All but one scene has wrapped. It is a new day!");
+    }
+
+    public void displayWinners(ArrayList<Player> winners){
+        String printme = "";
+        if(winners.size() == 1){
+            int winnerNum = winners.get(0).getPlayerNum();
+            printme += "The winner is: Player "+winnerNum+"! Congratulations!";
+        }
+        else{
+            printme += "There has been a tie! The winners are: ";
+            for(int i = 0; i < winners.size(); i++){
+                int winnerNum = winners.get(i).getPlayerNum();
+                printme += "Player "+winnerNum+", ";
+            }
+            printme += "Congratulations!";
+        }
+
+        JOptionPane.showMessageDialog(bPane,printme);
     }
 
     public void actNotification(boolean actSuccess){
@@ -436,10 +463,12 @@ public class Gooey extends JFrame {
         }else{
             // enable all valid role buttons
             for(int i = 0; i < roleButtons.size(); i++){
+                String buttonName = roleButtons.get(i).getRoleName();
                 for(int j = 0; j < availableRoles.length; j++){
-                    String buttonName = roleButtons.get(i).getRoleName();
                     if(availableRoles[j].equals(buttonName)){
                         roleButtons.get(i).setAvailable(true);
+                        //System.out.println(availableRoles[j]);
+                        //int[] coords = roleButtons.get(i).getLocalCoords();
                     }
                 }
             }
@@ -483,6 +512,9 @@ public class Gooey extends JFrame {
             else if(e.getSource() == bUpgrade){
                 enableUpgradeButtons();
             }else if(e.getSource() == bEnd){
+                disableAllRoomButtons();
+                disableAllRoleButtons();
+                disableUpgradeButtons();
                 manager.parseAction(new String[]{"end"} );
             }
             else if (e.getSource() == bWork) {
@@ -531,6 +563,7 @@ public class Gooey extends JFrame {
 
             displayPlayerStats();
             updateAllPlayerdice();
+            updateAllSceneCards();
 
         }
         public void mousePressed(MouseEvent e) {
@@ -584,6 +617,13 @@ public class Gooey extends JFrame {
 
         public String getRoleName() {
             return this.roleName;
+        }
+
+        public int[] getLocalCoords(){
+            int[] coords = new int[2];
+            coords[0] = this.localX;
+            coords[1] = this.localY;
+            return coords;
         }
 
     }
@@ -668,7 +708,93 @@ public class Gooey extends JFrame {
                 yOffset = yDiff * (i / 4) + CARD_H;
             }
 
+            //System.out.println(dims[0] +", "+dims[1]+", "+xOffset+", "+yOffset);
+
             playerDices.get(i).setCoordinates(dims[0], dims[1], xOffset, yOffset);
+        }
+    }
+
+    public void populateSceneCardButtonArray(){
+        // this method is a little expensive, it should ideally only be called once at startup
+
+        for(int i = 0; i < cards.size(); i++){
+            // find names of each role in my scene
+            CardLabel workingCard = cards.get(i);
+            String workingFileName = workingCard.getFileName();
+
+            String[] myRoleNames = manager.getRoleNamesFromRoomFileName(workingFileName);
+            
+            /*
+            System.out.println("----------------------------------------------------");
+            for(String s : myRoleNames){
+                System.out.println(s);
+            }*/
+
+            ArrayList<RoleButton> myRoleButtons = new ArrayList<RoleButton>();
+
+            //search through rolebuttons, if rolebutton r.name is one of my role button names, add it to myRoleButtons
+            for(RoleButton r : roleButtons){
+                String roleName = r.getRoleName();
+                for(int j = 0; j < myRoleNames.length; j++){
+                    if(myRoleNames[j].equals(roleName)){
+                        myRoleButtons.add(r);
+                        //System.out.println(roleName);
+                        break;
+                    }
+                }
+            }
+
+            workingCard.setButtons(myRoleButtons.toArray(new RoleButton[myRoleNames.length]));
+        }
+    }
+
+    public void updateAllSceneCards(){
+
+        /*
+         * each scene in allCurrentScenes is like this:
+         * (this list only contains scenes currently out on the board)
+         * 
+         * allCurrentScenes[i][0] = filename
+         * allCurrentScenes[i][1] = isFlipped
+         * allCurrentScenes[i][2] = xCoordinate
+         * allCurrentScenes[i][3] = yCoordinate
+         * 
+         */
+
+        String[][] allCurrentScenes = manager.getAllCurrentScenesInfo();
+        
+        for(int i = 0; i < cards.size(); i++){
+            CardLabel workingCard = cards.get(i);
+            String workingFileName = workingCard.getFileName();
+
+            // check to see if this card is currently on the board
+            boolean isContained = false;
+            int myIndex = -1;
+
+            for(int j = 0; j < allCurrentScenes.length; j++){
+                if(workingFileName.equalsIgnoreCase(allCurrentScenes[j][0])){
+                    isContained = true;
+                    myIndex = j;
+                    break;
+                }
+            }
+
+
+            // if it is, set its position to the correct spot and whatnot
+            if(isContained){
+                //set card to either front or back
+                workingCard.setCardIcon(Boolean.valueOf(allCurrentScenes[myIndex][1]));
+                //move to correct spot
+                int cardX = Integer.valueOf(allCurrentScenes[myIndex][2]);
+                int cardY = Integer.valueOf(allCurrentScenes[myIndex][3]);
+                workingCard.placeCard(cardX, cardY);
+                //also move my buttons to correct spot
+                for(RoleButton b : workingCard.getButtons()){
+                    //set position takes local coords into account, we dont need to do it here
+                    b.setPositon(cardX,cardY);
+                }
+            }
+            
         }
     }
 
@@ -708,6 +834,64 @@ public class Gooey extends JFrame {
             ImageIcon icon = new ImageIcon(fileName);
             this.setIcon(icon);
             this.setVisible(true);
+        }
+    }
+
+    public class CardLabel extends JLabel{
+
+        private int x;
+        private int y;
+        private int w;
+        private int h;
+        private String fileName;
+        private ImageIcon cardFront;
+        private ImageIcon cardBack;
+        private RoleButton[] buttons;
+
+        private CardLabel(String fileName, int w, int h) {
+            this.fileName = fileName;
+            this.cardFront = new ImageIcon(PREFIX + fileName);
+            this.w = (int) (w * SCALE_WIDTH);
+            this.h = (int) (h * SCALE_HEIGHT);
+            this.cardBack = new ImageIcon(PREFIX + "Cardback-small.jpg");
+            this.setIcon(cardBack);
+            this.setVisible(false);
+            this.buttons = null; //populated elsewhere
+        }
+
+        public void placeCard(int x, int y) {
+
+            this.x = (int) (x  * SCALE_WIDTH);
+            this.y = (int) (y  * SCALE_HEIGHT);  
+            this.setBounds(this.x,this.y, this.w, this.h);
+            this.setVisible(true);
+        }
+
+        public void setCardIcon(boolean isFlipped) {
+            //this.setIcon(cardFront);
+            if(isFlipped){
+                this.setIcon(cardFront);
+            }else{
+                this.setIcon(cardBack);
+            }
+        }
+
+        public String getFileName(){
+            return this.fileName;
+        }
+
+        public void removeCard() {
+            this.x = 0;
+            this.y = 0;
+            this.setVisible(false);
+        }
+
+        public RoleButton[] getButtons(){
+            return this.buttons;
+        }
+
+        public void setButtons(RoleButton[] buttons){
+            this.buttons = buttons;
         }
     }
 

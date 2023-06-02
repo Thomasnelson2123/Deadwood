@@ -148,6 +148,7 @@ public class ParseXML {
             Node card = cards.item(i);
             String caption = "";
             String cardName = card.getAttributes().getNamedItem("name").getNodeValue();
+            String fileName = card.getAttributes().getNamedItem("img").getNodeValue();
             int budget = Integer.parseInt(card.getAttributes().getNamedItem("budget").getNodeValue());
             NodeList children = card.getChildNodes();
             ArrayList<Role> roles = new ArrayList<Role>();
@@ -163,7 +164,7 @@ public class ParseXML {
                 }
             }      
             Role[] roleArray = roles.toArray(new Role[roles.size()]);
-            Scene scene = new Scene(cardName, number, caption, budget, roleArray);
+            Scene scene = new Scene(cardName, number, caption, budget, roleArray, fileName);
             scenes.add(scene);     
         }
         return scenes.toArray(new Scene[scenes.size()]);

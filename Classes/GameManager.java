@@ -107,7 +107,7 @@ public class GameManager {
     public void nextDay(){
         this.board.resetBoard();
         this.scenesLeft = 10;
-        this.gui.nextDay();
+        this.gui2.nextDay();
         this.day++;
     }
 
@@ -441,6 +441,14 @@ public class GameManager {
 
         // set all off card role's occupied vars to false
         //Role[] roles = board.getRoom(room).getRoles();
+
+        if(scenesLeft == 1){
+            nextDay();
+            if(this.day > this.maxDays){
+                determineWinner();
+                endGame();
+            }
+        }
     }
 
     // gets a list of players and the difficulties of the roles they are working on
@@ -618,7 +626,7 @@ public class GameManager {
         }
 
         //print to gui
-        gui.displayWinners(winners);
+        gui2.displayWinners(winners);
     }
 
     // given a player, returns all available roles in their current room
@@ -640,20 +648,47 @@ public class GameManager {
 
     // return specified player's dims
     public int[] getPlayerDims(int playerNum){
+        
         Player p = players[playerNum];
+
+        //DONT MESS WITH THIS ARRAY ITS NOT NEW SO ITLL CHANGE THE ROOM DIMS!
+        int[] roomDims = board.getPlayerRoomDims(playerNum);
+
+        int[] returnThis = new int[2];
+        returnThis[0] = roomDims[0];
+        returnThis[1] = roomDims[1];
+
+        // if theyre working, we cant just return the room dims, we need to return the dims of their role
         if(p.isWorking()){
-            // return dims of their role
-            return this.board.getPlayerRoleDims(playerNum);
-        }else{
-            // return dims of room, plus offset
-            // offset is handled in board method
-            return this.board.getPlayerRoomDims(playerNum);
+            
+            int[] roleDims = board.getPlayerRoleDims(playerNum);
+            String[] roleInfo = board.getPlayerRoleInfo(playerNum+1);
+
+            //if they're working on a role on card, simply add local role dims to existing dims
+            if(Boolean.parseBoolean(roleInfo[3]) == true){
+                returnThis[0] += roleDims[0];
+                returnThis[1] += roleDims[1];
+            } //otherwise, the role dims dont take room into account, so we just set it directly
+            else{
+                returnThis[0] = roleDims[0];
+                returnThis[1] = roleDims[1];
+            }
         }
+
+        return returnThis;
     }
 
     public boolean playerIsWorking(int playerNum){
         Player p = players[playerNum];
         return p.isWorking();
+    }
+
+    public String[][] getAllCurrentScenesInfo(){
+        return board.getAllCurrentScenesInfo();
+    }
+
+    public String[] getRoleNamesFromRoomFileName(String fileName){
+        return board.getRoleNamesFromRoomFileName(fileName);
     }
 
 }

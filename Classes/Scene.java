@@ -5,15 +5,17 @@ public class Scene {
     private Role[] roles;
     private int sceneNumber;
     private boolean isFacingUp;
+    private String fileName;
 
     // constructor
-    public Scene(String name, int sceneNumber, String caption, int budget, Role[] roles) {
+    public Scene(String name, int sceneNumber, String caption, int budget, Role[] roles, String fileName) {
         this.isFacingUp = false;
         this.name = name;
         this.caption = caption;
         this.budget = budget;
         this.roles = roles;
         this.sceneNumber = sceneNumber;
+        this.fileName = fileName;
     }
 //#region Getters
     public int getBudget() {
@@ -44,7 +46,12 @@ public class Scene {
 
     // flips the card over
     public void flipCard() {
-        this.isFacingUp = !this.isFacingUp;
+        //this.isFacingUp = !this.isFacingUp;
+        this.isFacingUp = true;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
 }   
