@@ -72,18 +72,6 @@ public class Room {
 
      //#endregion
 
-    // for debug
-    public void printRoomInfo() {
-        System.out.println(roomName);
-        for (ShotCounter shot: shots) {
-            System.out.println(shot.getId());
-        }
-        // System.out.print("adjacent: ");
-        // for (String str: adjacentRoomNames) {
-        //     System.out.print(str + ", ");
-        // }
-    }
-
     public void setSceneCard(Scene sceneCard) {
         this.sceneCard = sceneCard;
     }
@@ -99,6 +87,24 @@ public class Room {
 
     public int[] getDims() {
         return dims;
+    }
+
+    // returns information about shots in a room
+    public String[][] getShotDimsInfo() {
+        if (this.shots == null) {
+            return null;
+        }
+        String[][] info = new String[this.shots.length][6];
+        for (int i = 0; i < this.shots.length; i++) {
+            int[] dims = this.shots[i].getDims();
+            info[i][0] = Boolean.toString(this.shots[i].hasShot());
+            info[i][1] = this.roomName;
+            info[i][2] = String.valueOf(dims[0]);
+            info[i][3] = String.valueOf(dims[1]);
+            info[i][4] = String.valueOf(dims[2]);
+            info[i][5] = String.valueOf(dims[3]);
+        }
+        return info;
     }
 
 }

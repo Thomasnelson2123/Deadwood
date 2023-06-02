@@ -26,7 +26,7 @@ public class GameManager {
         this.gui = new GUI();
         this.gui2 = new Gooey();
         this.day = 1;
-        this.scenesLeft = 10;
+        this.scenesLeft = 2;
         this.rand = rand;
 
         if (players.length < 4) {
@@ -582,6 +582,7 @@ public class GameManager {
         return this.board.getSceneInfo(room);
     }
 
+    // [shots remaining, shots total]
     public int[] getShotCounterInfo(String room) {
         return this.board.getShotCounters(room);
     }
@@ -689,6 +690,10 @@ public class GameManager {
 
     public String[] getRoleNamesFromRoomFileName(String fileName){
         return board.getRoleNamesFromRoomFileName(fileName);
+    }
+
+    public String[][] getShotCounterDims(String room) {
+        return board.getShotCounterDims(room);
     }
 
 }

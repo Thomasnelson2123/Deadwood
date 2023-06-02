@@ -471,4 +471,14 @@ public class Board {
         return tempList.toArray(new String[tempList.size()]);
         
     }
+
+    // returns the an array with info for every shot counter
+    // [i][0] - boolean, whether or not shotcounter has a shot
+    // [i][1] - name of room
+    // [i][2-5] - dims of shotcounter (x,y,w,h)
+    public String[][] getShotCounterDims(String room) {
+        Room r = this.getRoom(room);
+        return r.getShotDimsInfo();
+
+    }
 }

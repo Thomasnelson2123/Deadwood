@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Gooey extends JFrame {
 
     //String PREFIX = "../Images/";
-    String PREFIX = "Images/";
+    String PREFIX = "../Images/";
 
     double SCALE_HEIGHT = 0.8;
     double SCALE_WIDTH = 0.8;
@@ -208,8 +208,14 @@ public class Gooey extends JFrame {
     public void createMoveButtons() {
         String[][] roomInfo = this.manager.getRoomDims();
         for (String[] info: roomInfo) {
+            String roomName = info[0];
+            String[][] shotInfo = this.manager.getShotCounterDims(roomName);
+            ShotLabel[] shots = null;
+            if (shotInfo != null) {
+                shots = createShots(shotInfo);
+            }   
             MoveButton mb = new MoveButton(Integer.parseInt(info[1]), Integer.parseInt(info[2]), 
-            Integer.parseInt(info[3]), Integer.parseInt(info[4]), info[0]);
+            Integer.parseInt(info[3]), Integer.parseInt(info[4]), roomName, shots);
             mb.setAvailable(false);
             mb.addMouseListener(new boardMouseListener());
             bPane.setLayer(mb, BUTTON_LAYER);
@@ -244,10 +250,55 @@ public class Gooey extends JFrame {
 
     public void createCards() {
         for (int i = 1; i <= 40; i++) {
-            CardLabel card = new CardLabel(i + ".png", 205, 115);
+            // because the first 9 cards have a leading '0'
+            String number = String.format("%02d", i);
+            CardLabel card = new CardLabel(number + ".png", 205, 115);
             bPane.setLayer(card, CARD_LAYER);
             this.bPane.add(card);
             this.cards.add(card);
+        }
+    }
+
+    public ShotLabel[] createShots(String[][] shotInfo) {
+
+        ShotLabel[] shotLabels = new ShotLabel[shotInfo.length];
+        int i = 0;
+        for (String[] shot : shotInfo) {
+            boolean hasShot = Boolean.parseBoolean(shot[0]);
+            int x = Integer.parseInt(shot[2]);
+            int y = Integer.parseInt(shot[3]);
+            int w = Integer.parseInt(shot[4]);
+            int h = Integer.parseInt(shot[5]);
+
+            ShotLabel shotLabel = new ShotLabel(hasShot, shot[1], x, y, w, h);
+            this.bPane.setLayer(shotLabel, BUTTON_LAYER);
+            this.bPane.add(shotLabel);
+            shotLabels[i] = shotLabel;
+            i++;
+        }
+        return shotLabels;
+    }
+
+    public void updateShotCounters() {
+        for (MoveButton mb: this.moveButtons) {
+            String roomName = mb.roomName;
+            int[] shotCounterInfo = manager.getShotCounterInfo(roomName);
+            int removedShots = shotCounterInfo[1] - shotCounterInfo[0];
+            ShotLabel[] shots = mb.getShots();
+            if (shots == null) {
+                continue;
+            }
+            for (int i = 0; i < shotCounterInfo[1]; i++) {
+                if (shots[i] == null)
+                    continue;
+                shots[i].setShot(true);
+            }
+            for (int i = 0; i < removedShots; i++) {
+                if (shots[i] == null) {
+                    continue;
+                }
+                shots[i].setShot(false);
+            }
         }
     }
 
@@ -395,7 +446,7 @@ public class Gooey extends JFrame {
         if(badInput){
             JOptionPane.showMessageDialog(bPane,"<html>Upgrade failed!<br>Invalid input</html>");
         }else{
-            System.out.println("<html>Upgrade failed!<br>You do not possess enough resources to upgrade.</html>");
+            JOptionPane.showMessageDialog(bPane,"<html>Upgrade failed!<br>You do not possess enough resources to upgrade.</html>");
         }
     }
 
@@ -496,6 +547,7 @@ public class Gooey extends JFrame {
                 //playerlabel.setVisible(true);
                 //System.out.println("Acting is Selected\n");
                 manager.parseAction(new String[]{"act"} );
+                updateShotCounters();
             }
             else if (e.getSource()== bRehearse){
                 //System.out.println("Rehearse is Selected\n");
@@ -631,8 +683,9 @@ public class Gooey extends JFrame {
     class MoveButton extends JButton {
 
         private String roomName;
+        private ShotLabel[] shots;
 
-        public MoveButton(int x, int y, int w, int h, String roomName) {
+        public MoveButton(int x, int y, int w, int h, String roomName, ShotLabel[] shots) {
             this.roomName = roomName;
             int scaledWidth = (int) (w * SCALE_WIDTH);
             int scaledHeight = (int) (h * SCALE_HEIGHT);   
@@ -640,6 +693,7 @@ public class Gooey extends JFrame {
             ImageIcon icon = new ImageIcon(PREFIX + "movehere.png"); 
             this.setContentAreaFilled(false);
             this.setIcon(icon);
+            this.shots = shots;
         }
 
         public String getRoomName() {
@@ -653,6 +707,10 @@ public class Gooey extends JFrame {
         public void setAvailable(boolean isAvailable) {
             this.setEnabled(isAvailable);
             this.setVisible(isAvailable);
+        }
+
+        public ShotLabel[] getShots() {
+            return shots;
         }
 
     }
@@ -793,6 +851,8 @@ public class Gooey extends JFrame {
                     //set position takes local coords into account, we dont need to do it here
                     b.setPositon(cardX,cardY);
                 }
+            }else{
+                workingCard.setVisible(false);
             }
             
         }
@@ -849,12 +909,13 @@ public class Gooey extends JFrame {
         private RoleButton[] buttons;
 
         private CardLabel(String fileName, int w, int h) {
+            this.w = w;
+            this.h = h;
             this.fileName = fileName;
             this.cardFront = new ImageIcon(PREFIX + fileName);
-            this.w = (int) (w * SCALE_WIDTH);
-            this.h = (int) (h * SCALE_HEIGHT);
             this.cardBack = new ImageIcon(PREFIX + "Cardback-small.jpg");
             this.setIcon(cardBack);
+            setBoundsScaled(this, 0, 0, w, h);
             this.setVisible(false);
             this.buttons = null; //populated elsewhere
         }
@@ -863,7 +924,7 @@ public class Gooey extends JFrame {
 
             this.x = (int) (x  * SCALE_WIDTH);
             this.y = (int) (y  * SCALE_HEIGHT);  
-            this.setBounds(this.x,this.y, this.w, this.h);
+            setBoundsScaled(this, x, y, w, h);
             this.setVisible(true);
         }
 
@@ -893,6 +954,33 @@ public class Gooey extends JFrame {
         public void setButtons(RoleButton[] buttons){
             this.buttons = buttons;
         }
+
+
     }
 
-} 
+    public class ShotLabel extends JLabel {
+        private int x;
+        private int y;
+        private boolean hasShot;
+        private String roomName;
+        public ShotLabel(boolean hasShot, String roomName, int x, int y, int w, int h) {
+            this.x = x;
+            this.y = y;
+            this.hasShot = hasShot;
+            this.setVisible(hasShot);
+            ImageIcon icon = new ImageIcon(PREFIX + "shot.png");
+            this.setIcon(icon);
+            setBoundsScaled(this, x, y, w, h);
+            this.roomName = roomName;
+        }
+
+        public void setShot(boolean hasShot) {
+            this.hasShot = hasShot;
+            this.setVisible(this.hasShot);
+        }
+
+        public String getRoomName() {
+            return roomName;
+        }
+    }
+}
