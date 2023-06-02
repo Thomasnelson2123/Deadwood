@@ -9,7 +9,6 @@ public class GameManager {
     private Board board;
     private Player[] players;
     private Bank bank;
-    private GUI gui;
     private Gooey gui2;
 
     private Player currentPlayer;
@@ -23,7 +22,6 @@ public class GameManager {
         this.bank = bank;
         this.board = board;
         this.players = players;
-        this.gui = new GUI();
         this.gui2 = new Gooey();
         this.day = 1;
         this.scenesLeft = 10;
@@ -68,37 +66,11 @@ public class GameManager {
             case "work":
                 work(this.currentPlayer);
                 break;
-            case "move":
-                //move(args[1], this.currentPlayer);
-                move(this.currentPlayer);
-                break;
-            case "upgrade":
-                if (this.board.playerInOffice(this.currentPlayer.getPlayerNum())) {
-                    String[] upgradeInfo = this.gui.promptForUpgrade();
-                    upgradeRank(upgradeInfo[0], upgradeInfo[1], this.currentPlayer);
-                }
-                else {
-                    this.gui.notInOffice();
-                }
-                break;
             case "end": //end turn
                 endTurn();
                 break;
             case "terminate":
                 endGame();
-                break;
-            case "who":
-                displayPlayerStats(this.currentPlayer);
-                break;
-            case "where":
-                String location = this.getPlayerLocation(this.currentPlayer.getPlayerNum());
-                String[][] roomRoleInfo = getRoomRoleInfo(location);
-                String[][] sceneRoleInfo = getSceneRoleInfo(location);
-                String[] neighbors = this.board.getRoomNeighbors(location);
-                String[] sceneInfo = this.board.getSceneInfo(location);
-                int[] shots = this.board.getShotCounters(location);
-
-                this.gui.displayLocation(location, neighbors, roomRoleInfo, sceneRoleInfo, sceneInfo, shots);
                 break;
         }
     }
@@ -117,11 +89,6 @@ public class GameManager {
 
     public boolean playerIsInOffice(){
         return this.board.playerInOffice(this.currentPlayer.getPlayerNum());
-    }
-
-    //returns player info to gui for display with "who" command
-    public void displayPlayerStats(Player player) {  
-        this.gui.displayCurrentPlayerInfo(player.getPlayerNum(), player.getRank(), player.getMoney(), player.getCredits(), player.getRehearsalChipCount());
     }
 
     public int[] getPlayerStats() {
@@ -244,51 +211,13 @@ public class GameManager {
         if (!board.isRoleInRoom(playerRoom, role)) {
             this.gui2.roleNotInRoom();
         }
-        // role IS in room, but it isn't available
-        else if (!board.isRoleAvailable(role)) {
-            this.gui.roleNotAvailable();
-        }
-        // role IS available, but player does not have high enough of a rank
-        else if (this.board.getRoleDifficulty(role) > player.getRank()) {
-            this.gui.rankTooLow();
-        }
         else{
-            // at this point role is available, tell player and update things
-            this.gui.displayTakeRole(player.getPlayerNum(), role);
             //this.currentPlayer.setWorking(true);
             player.setAvailableActions(new Action[] {Action.None});
             this.board.setPlayerRole(role, player.getPlayerNum());
             player.setWorking(true);
         }
                
-    }
-
-    // resolve the "move" action a player may take
-    public void move(Player player) {
-        if(!canCurrentPlayerMove()){
-            if(isCurrentPlayerWorking()){
-                gui.cannotMoveWithRole();
-            }else{
-                gui.actionAlreadyTaken();
-            }
-        }else {
-            //get room to move to
-            String destinationRoom = gui.getDestinationRoom();
-
-            //figure out if thats valid
-            if (destinationRoom != null) {
-                boolean success = board.movePlayer(player.getPlayerNum(), destinationRoom);
-                if (!success) {
-                    gui.invalidMove(this.getPlayerRoomNeighbors());
-                }
-                else {
-                    //this.currentPlayer.setCanMove(false);
-                    player.setAvailableActions(new Action[] {Action.Work, Action.Upgrade});
-                    gui.displayMove(player.getPlayerNum(), destinationRoom);
-                    
-                }
-            }
-        }
     }
 
     public boolean checkCanMove() {
